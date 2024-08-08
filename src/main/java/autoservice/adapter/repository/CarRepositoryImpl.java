@@ -17,23 +17,23 @@ public class CarRepositoryImpl implements CarRepository {
     /**
      * Adds a new {@link Car} to the repository.
      *
-     * @param object the car to be added
+     * @param car the car to be added
      * @return {@code true} if the car was added successfully, {@code false} otherwise
      */
     @Override
-    public boolean create(Car object) {
-        return cars.add(object);
+    public boolean create(Car car) {
+        return cars.add(car);
     }
     /**
      * Removes a {@link Car} from the repository.
      *
-     * @param object the car to be removed
+     * @param car the car to be removed
      * @return {@code true} if the car was removed successfully, {@code false} otherwise
      */
 
     @Override
-    public boolean delete(Car object) {
-        return cars.remove(object);
+    public boolean delete(Car car) {
+        return cars.remove(car);
     }
     /**
      * Retrieves all cars from the repository.
