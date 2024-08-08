@@ -28,6 +28,27 @@ public class CarServiceImpl implements CarService {
     }
 
     /**
+     * Filters a list of cars by a specified search string.
+     *
+     * @param cars         the list of cars to filter
+     * @param searchString the search string to filter by
+     * @return a list of cars that match the search string
+     */
+    public static List<Car> filterCarsByString(List<Car> cars, String searchString) {
+        return cars.stream()
+                .filter(car -> {
+                    boolean matchesId = String.valueOf(car.getId()).equals(searchString);
+                    boolean matchesMake = car.getMake().equalsIgnoreCase(searchString);
+                    boolean matchesModel = car.getModel().equalsIgnoreCase(searchString);
+                    boolean matchesYear = String.valueOf(car.getYear()).equals(searchString);
+                    boolean matchesPrice = String.valueOf(car.getPrice()).equals(searchString);
+                    boolean matchesState = car.getState().toString().equalsIgnoreCase(searchString);
+                    return matchesId || matchesMake || matchesModel || matchesYear || matchesPrice || matchesState;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Adds a car to the repository.
      *
      * @param car the car to add
@@ -138,23 +159,5 @@ public class CarServiceImpl implements CarService {
     public void markForService(Car car, User user) {
         if (user.getRole() == Role.CLIENT) return;
         car.setState(CarState.FOR_SERVICE);
-    }
-
-    /**
-     * Filters a list of cars by a specified search string.
-     *
-     * @param cars         the list of cars to filter
-     * @param searchString the search string to filter by
-     * @return a list of cars that match the search string
-     */
-    public static List<Car> filterCarsByString(List<Car> cars, String searchString) {
-        return cars.stream()
-                .filter(car -> String.valueOf(car.getId()).equals(searchString) ||
-                        car.getMake().equalsIgnoreCase(searchString) ||
-                        car.getModel().equalsIgnoreCase(searchString) ||
-                        String.valueOf(car.getYear()).equals(searchString) ||
-                        String.valueOf(car.getPrice()).equals(searchString) ||
-                        car.getState().toString().equalsIgnoreCase(searchString))
-                .collect(Collectors.toList());
     }
 }

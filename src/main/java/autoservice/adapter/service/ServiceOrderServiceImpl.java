@@ -108,12 +108,16 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
      */
     public static List<ServiceOrder> filterOrdersByString(List<ServiceOrder> orders, String searchString) {
         return orders.stream()
-                .filter(order -> String.valueOf(order.getId()).equals(searchString) ||
-                        order.getCustomer().getName().equalsIgnoreCase(searchString) ||
-                        order.getStatus().toString().equalsIgnoreCase(searchString) ||
-                        order.getDate().toString().contains(searchString))
+                .filter(order -> {
+                    boolean matchesId = String.valueOf(order.getId()).equals(searchString);
+                    boolean matchesCustomerName = order.getCustomer().getName().equalsIgnoreCase(searchString);
+                    boolean matchesStatus = order.getStatus().toString().equalsIgnoreCase(searchString);
+                    boolean matchesDate = order.getDate().toString().contains(searchString);
+                    return matchesId || matchesCustomerName || matchesStatus || matchesDate;
+                })
                 .collect(Collectors.toList());
     }
+
 
     /**
      * Retrieves all service orders that match the specified filter.
