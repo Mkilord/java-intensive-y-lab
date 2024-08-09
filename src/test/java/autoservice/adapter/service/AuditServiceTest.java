@@ -1,6 +1,7 @@
 package autoservice.adapter.service;
 
-import autoservice.adapter.service.AuditService;
+import autoservice.adapter.service.impl.AuditService;
+import autoservice.model.AuditAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,7 @@ class AuditServiceTest {
 
     @Test
     void testLogAction() {
-        AuditService.logAction("johndoe", "Login");
+        AuditService.logAction("johndoe", AuditAction.LOG_IN);
         List<String> logs = AuditService.viewLogs();
         assertEquals(1, logs.size(), "There should be 1 log entry");
         assertTrue(logs.get(0).contains("User: johndoe - Action: Login"), "Log entry should match the expected format");
@@ -29,8 +30,8 @@ class AuditServiceTest {
 
     @Test
     void testFilterLogsByString() {
-        AuditService.logAction("johndoe", "Login");
-        AuditService.logAction("janesmith", "Logout");
+        AuditService.logAction("johndoe", AuditAction.LOG_IN);
+        AuditService.logAction("janesmith", AuditAction.LOG_IN);
 
         List<String> filteredLogs = AuditService.filterLogsByString("Login");
         assertEquals(1, filteredLogs.size(), "There should be 1 log entry containing 'Login'");
@@ -39,8 +40,8 @@ class AuditServiceTest {
 
     @Test
     void testExportLogs() throws IOException {
-        AuditService.logAction("johndoe", "Login");
-        AuditService.logAction("janesmith", "Logout");
+        AuditService.logAction("johndoe", AuditAction.LOG_IN);
+        AuditService.logAction("janesmith", AuditAction.LOG_IN);
 
         Path tempFile = Files.createTempFile("audit_logs", ".txt");
         AuditService.exportLogs(tempFile.toString());

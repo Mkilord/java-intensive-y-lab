@@ -1,12 +1,11 @@
 package autoservice.adapter.service;
 
-import autoservice.adapter.service.CarServiceImpl;
-import autoservice.core.model.Car;
-import autoservice.core.model.CarState;
-import autoservice.core.model.Role;
-import autoservice.core.model.User;
-import autoservice.core.port.CarRepository;
-import autoservice.core.services.CarService;
+import autoservice.adapter.service.impl.CarServiceImpl;
+import autoservice.model.Car;
+import autoservice.model.CarState;
+import autoservice.model.Role;
+import autoservice.model.User;
+import autoservice.adapter.repository.CarRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

@@ -1,7 +1,7 @@
 package autoservice.adapter.repository;
 
-import autoservice.core.model.Car;
-import autoservice.core.port.CarRepository;
+import autoservice.adapter.repository.impl.CarRepositoryImpl;
+import autoservice.model.Car;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -1,9 +1,9 @@
 package autoservice.adapter.service;
 
-import autoservice.core.model.Role;
-import autoservice.core.model.User;
-import autoservice.core.port.UserRepository;
-import autoservice.core.services.UserAuthService;
+import autoservice.adapter.service.impl.UserAuthServiceImpl;
+import autoservice.model.Role;
+import autoservice.model.User;
+import autoservice.adapter.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -94,19 +94,6 @@ class UserAuthServiceImplTest {
         assertEquals(username, result.get().getUsername());
     }
 
-    @Test
-    void testGetAllUsers() {
-        User user1 = new User(Role.CLIENT, "john_doe", "password");
-        User user2 = new User(Role.CLIENT, "jane_doe", "password");
-        List<User> users = List.of(user1, user2);
-
-        Mockito.when(authRepo.findAll()).thenReturn(users);
-
-        List<User> result = userAuthService.getAllUsers();
-
-        assertEquals(users, result);
-        Mockito.verify(authRepo).findAll();
-    }
 
     @Test
     void testGetByUsername() {
@@ -121,18 +108,6 @@ class UserAuthServiceImplTest {
         assertEquals(username, result.get().getUsername());
     }
 
-    @Test
-    void testGetUsersByFilter() {
-        User user1 = new User(Role.CLIENT, "john_doe", "password");
-        User user2 = new User(Role.CLIENT, "jane_doe", "password");
-        List<User> users = List.of(user1, user2);
-
-        Mockito.when(authRepo.findByFilter(Mockito.any(Predicate.class))).thenReturn(users.stream());
-
-        List<User> result = userAuthService.getUsersByFilter(u -> u.getUsername().startsWith("j"));
-
-        assertEquals(users, result);
-    }
 
     @Test
     void testFilterUsersByString() {

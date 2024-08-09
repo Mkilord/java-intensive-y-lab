@@ -1,10 +1,10 @@
 package autoservice.adapter.repository;
 
-import autoservice.core.model.Car;
-import autoservice.core.model.Role;
-import autoservice.core.model.ServiceOrder;
-import autoservice.core.model.User;
-import autoservice.core.port.ServiceOrderRepository;
+import autoservice.adapter.repository.impl.ServiceOrderRepositoryImpl;
+import autoservice.model.Car;
+import autoservice.model.Role;
+import autoservice.model.ServiceOrder;
+import autoservice.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

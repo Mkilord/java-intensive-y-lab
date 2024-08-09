@@ -1,18 +1,18 @@
 package autoservice.adapter.config;
 
-import autoservice.adapter.repository.CarRepositoryImpl;
-import autoservice.adapter.repository.OrderRepositoryImpl;
-import autoservice.adapter.repository.UserRepositoryImpl;
-import autoservice.adapter.service.CarServiceImpl;
-import autoservice.core.model.Car;
-import autoservice.core.model.Role;
-import autoservice.core.model.SalesOrder;
-import autoservice.core.model.User;
-import autoservice.core.port.CarRepository;
-import autoservice.core.port.OrderRepository;
-import autoservice.core.port.UserRepository;
-import autoservice.core.services.CarService;
-import autoservice.core.services.UserAuthService;
+import autoservice.adapter.repository.CarRepository;
+import autoservice.adapter.repository.OrderRepository;
+import autoservice.adapter.repository.UserRepository;
+import autoservice.adapter.service.CarService;
+import autoservice.adapter.service.UserAuthService;
+import autoservice.adapter.repository.impl.CarRepositoryImpl;
+import autoservice.adapter.service.impl.CarServiceImpl;
+import autoservice.adapter.repository.impl.OrderRepositoryImpl;
+import autoservice.adapter.repository.impl.UserRepositoryImpl;
+import autoservice.model.Car;
+import autoservice.model.Role;
+import autoservice.model.SalesOrder;
+import autoservice.model.User;
 
 /**
  * Utility class for loading repositories with default data.
@@ -47,7 +47,7 @@ public class Loader {
         userRepo.create(getUser(Role.MANAGER, "lucy_harris", "lucy111", "Lucy", "Harris", "89005678901"));
         userRepo.create(getUser(Role.MANAGER, "harry_white", "harry000", "Harry", "White", "89004321987"));
         /*Admins*/
-        userRepo.create(getUser(Role.ADMIN, "ivan", "12345", "Ivan", "Doe", "89001234567"));
+        userRepo.create(getUser(Role.CLIENT, "ivan", "12345", "Ivan", "Doe", "89001234567"));
         userRepo.create(getUser(Role.ADMIN, "ella_lewis", "ella999", "Ella", "Lewis", "89001239876"));
         userRepo.create(getUser(Role.ADMIN, "michael_scott", "michael444", "Michael", "Scott", "89008765432"));
         userRepo.create(getUser(Role.ADMIN, "chloe_adams", "chloe333", "Chloe", "Adams", "89007654321"));

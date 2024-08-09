@@ -1,15 +1,13 @@
 package autoservice.adapter.repository;
 
-import autoservice.adapter.repository.UserRepositoryImpl;
-import autoservice.core.model.Role;
-import autoservice.core.model.User;
-import autoservice.core.port.UserRepository;
+import autoservice.adapter.repository.impl.UserRepositoryImpl;
+import autoservice.model.Role;
+import autoservice.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 

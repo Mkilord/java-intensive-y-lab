@@ -1,5 +1,6 @@
 package autoservice.adapter.ui;
 
+import autoservice.adapter.ui.components.utils.ConsoleUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -16,7 +17,6 @@ class ConsoleUtilsTest {
         String input = "valid input";
         boolean result = ConsoleUtils.NOT_BLANK_STR.test(input);
         assertTrue(result);
-
         input = "  ";
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
@@ -86,7 +86,7 @@ class ConsoleUtilsTest {
         String input = "123";
         System.setIn(new ByteArrayInputStream(input.getBytes()));
         Scanner scanner = new Scanner(System.in);
-        int result = ConsoleUtils.readInt(scanner, n -> n > 0);
+        int result = ConsoleUtils.readInt(scanner, n -> n > 0,"");
         assertEquals(123, result);
     }
 
@@ -134,7 +134,7 @@ class ConsoleUtilsTest {
         String input = "5";
         System.setIn(new ByteArrayInputStream(input.getBytes()));
         Scanner scanner = new Scanner(System.in);
-        int result = ConsoleUtils.readIntOfRange(scanner, 1, 10);
+        int result = ConsoleUtils.readIntOfRange(scanner, 1, 10,"");
         assertEquals(5, result);
     }
 }
