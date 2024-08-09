@@ -1,23 +1,17 @@
 package autoservice.core.model;
 
 public enum CarState {
-    FOR_SALE,
-    SOLD{
-        @Override
-        public String toString() {
-            return "Sold status";
-        }
-    },
-    NOT_SALE{
-        @Override
-        public String toString() {
-            return "Not sale status";
-        }
-    },
-    FOR_SERVICE{
-        @Override
-        public String toString() {
-            return "Service Status";
-        }
+    FOR_SALE("For sale"),
+    SOLD("Sold"),
+    NOT_SALE("Not sale"),
+    FOR_SERVICE("For service");
+    private final String text;
+
+    CarState(String text) {
+        this.text = text;
+    }
+    @Override
+    public String toString() {
+        return text;
     }
 }
