@@ -1,86 +1,219 @@
 package autoservice.adapter.repository;
 
+import autoservice.adapter.config.DatabaseManager;
 import autoservice.adapter.repository.impl.CarRepositoryImpl;
 import autoservice.adapter.repository.impl.OrderRepositoryImpl;
 import autoservice.adapter.repository.impl.UserRepositoryImpl;
-import autoservice.model.Car;
-import autoservice.model.Role;
-import autoservice.model.SalesOrder;
-import autoservice.model.User;
-import org.junit.jupiter.api.BeforeEach;
+import autoservice.model.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class OrderRepositoryImplTest {
+public class OrderRepositoryImplTest {
 
-    private OrderRepository orderRepository;
+    @Container
+    private static final PostgreSQLContainer<?> postgreSQLContainer =
+            new PostgreSQLContainer<>("postgres:15.2")
+                    .withDatabaseName("car_service")
+                    .withUsername("test")
+                    .withPassword("test");
 
-    @BeforeEach
-    void setUp() {
-        orderRepository = new OrderRepositoryImpl(new UserRepositoryImpl(),new CarRepositoryImpl());
+    private static OrderRepositoryImpl orderRepository;
+    private static CarRepository carRepository;
+    private static UserRepository userRepository;
+
+    @BeforeAll
+    public static void setUp() {
+        postgreSQLContainer.start();
+
+        DatabaseManager.setJdbcUrl(postgreSQLContainer.getJdbcUrl());
+        DatabaseManager.setUsername(postgreSQLContainer.getUsername());
+        DatabaseManager.setPassword(postgreSQLContainer.getPassword());
+
+        carRepository = new CarRepositoryImpl();
+        userRepository = new UserRepositoryImpl();
+        orderRepository = new OrderRepositoryImpl(userRepository, carRepository);
+
+        try (Connection connection = DatabaseManager.getConnection();
+             Statement statement = connection.createStatement()) {
+
+            statement.execute("CREATE SCHEMA IF NOT EXISTS car_service");
+
+            statement.execute("CREATE TABLE IF NOT EXISTS car_service.user (" +
+                    "id SERIAL PRIMARY KEY, " +
+                    "username VARCHAR(255) UNIQUE NOT NULL, " +
+                    "password VARCHAR(255) NOT NULL, " +
+                    "name VARCHAR(255), " +
+                    "surname VARCHAR(255), " +
+                    "phone VARCHAR(255), " +
+                    "role VARCHAR(255) NOT NULL" +
+                    ")");
+            statement.execute("CREATE TABLE IF NOT EXISTS car_service.car (" +
+                    "id SERIAL PRIMARY KEY, " +
+                    "make VARCHAR(255), " +
+                    "model VARCHAR(255), " +
+                    "year INT, " +
+                    "price INT, " +
+                    "state VARCHAR(255)" +
+                    ")");
+            statement.execute("CREATE TABLE IF NOT EXISTS car_service.sales_order (" +
+                    "id SERIAL PRIMARY KEY, " +
+                    "customer_id INT, " +
+                    "car_id INT, " +
+                    "date DATE, " +
+                    "status VARCHAR(255)" +
+                    ")");
+
+            statement.execute("ALTER TABLE car_service.sales_order " +
+                    "ADD CONSTRAINT fk_customer " +
+                    "FOREIGN KEY (customer_id) REFERENCES car_service.user(id) ON DELETE CASCADE");
+
+            statement.execute("ALTER TABLE car_service.sales_order " +
+                    "ADD CONSTRAINT fk_car " +
+                    "FOREIGN KEY (car_id) REFERENCES car_service.car(id) ON DELETE CASCADE");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @AfterEach
+    public void tearDown() {
+        try (Connection connection = DatabaseManager.getConnection();
+             Statement statement = connection.createStatement()) {
+            statement.execute("DELETE FROM car_service.user");
+            statement.execute("DELETE FROM car_service.car");
+            statement.execute("DELETE FROM car_service.sales_order");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
-    void testCreate() {
-        User customer = new User(Role.CLIENT, "johndoe", "password123");
-        Car car = new Car("Toyota", "Camry", 2020, 30000L);
-        SalesOrder order = new SalesOrder(customer, car);
+    public void testCreateOrder() {
+        User customer = new User(Role.CLIENT, "user6", "pass");
+        customer.setName("test");
+        customer.setSurname("test2");
+        customer.setPhone("34939483");
 
-        assertTrue(orderRepository.create(order), "SalesOrder should be added successfully");
-        assertTrue(orderRepository.findAll().contains(order), "SalesOrder should be in the repository");
+        boolean userCreated = userRepository.create(customer);
+        assertTrue(userCreated, "User should be created");
+
+        assertNotEquals(0, customer.getId(), "User ID should be generated");
+
+        Car car = new Car("Toyota", "Camry", 2020, 30000);
+        car.setState(CarState.FOR_SALE);
+
+        boolean carCreated = carRepository.create(car);
+        assertTrue(carCreated, "Car should be created");
+
+        SalesOrder order = new SalesOrder(0, customer, car, OrderStatus.IN_PROGRESS, LocalDate.now());
+        boolean orderCreated = orderRepository.create(order);
+        assertTrue(orderCreated, "Order should be created");
+
+        var fetchedOrder = orderRepository.findById(order.getId());
+        assertTrue(fetchedOrder.isPresent(), "Order should be found");
+        assertEquals(customer.getId(), fetchedOrder.get().getCustomer().getId(), "Customer ID should match");
+        assertEquals(car.getId(), fetchedOrder.get().getCar().getId(), "Car ID should match");
+        assertEquals(order.getStatus(), fetchedOrder.get().getStatus(), "Order status should match");
+        assertEquals(order.getDate(), fetchedOrder.get().getDate(), "Order date should match");
     }
 
     @Test
-    void testDelete() {
-        User customer = new User(Role.CLIENT, "johndoe", "password123");
-        Car car = new Car("Toyota", "Camry", 2020, 30000L);
-        SalesOrder order = new SalesOrder(customer, car);
-        orderRepository.create(order);
+    public void testDeleteOrder() {
+        User customer = new User(Role.CLIENT, "user2", "pass");
+        customer.setName("test");
+        customer.setSurname("test2");
+        customer.setPhone("34939483");
 
-        assertTrue(orderRepository.delete(order), "SalesOrder should be removed successfully");
-        assertFalse(orderRepository.findAll().contains(order), "SalesOrder should not be in the repository");
+        boolean userCreated = userRepository.create(customer);
+        assertTrue(userCreated, "User should be created");
+
+        Car car = new Car("Toyota", "Camry", 2020, 30000);
+        car.setState(CarState.FOR_SALE);
+
+        boolean carCreated = carRepository.create(car);
+        assertTrue(carCreated, "Car should be created");
+
+        SalesOrder order = new SalesOrder(0, customer, car, OrderStatus.IN_PROGRESS, LocalDate.now());
+        boolean orderCreated = orderRepository.create(order);
+        assertTrue(orderCreated, "Order should be created");
+
+        boolean orderDeleted = orderRepository.delete(order);
+        assertTrue(orderDeleted, "Order should be deleted");
+
+        var fetchedOrder = orderRepository.findById(order.getId());
+        assertFalse(fetchedOrder.isPresent(), "Order should not be found after deletion");
     }
 
     @Test
-    void testFindAll() {
-        User customer1 = new User(Role.CLIENT, "johndoe", "password123");
-        User customer2 = new User(Role.MANAGER, "janesmith", "password456");
-        Car car1 = new Car("Toyota", "Camry", 2020, 30000L);
-        Car car2 = new Car("Honda", "Civic", 2021, 25000L);
-        SalesOrder order1 = new SalesOrder(customer1, car1);
-        SalesOrder order2 = new SalesOrder(customer2, car2);
+    public void testUpdateOrder() {
+        User customer = new User(Role.CLIENT, "user3", "pass");
+        customer.setName("test");
+        customer.setSurname("test2");
+        customer.setPhone("34939483");
 
-        orderRepository.create(order1);
-        orderRepository.create(order2);
+        boolean userCreated = userRepository.create(customer);
+        assertTrue(userCreated, "User should be created");
 
-        List<SalesOrder> orders = orderRepository.findAll();
-        assertEquals(2, orders.size(), "There should be 2 sales orders in the repository");
-        assertTrue(orders.contains(order1), "Order1 should be in the repository");
-        assertTrue(orders.contains(order2), "Order2 should be in the repository");
+        Car car = new Car("Toyota", "Camry", 2020, 30000);
+        car.setState(CarState.FOR_SALE);
+
+        boolean carCreated = carRepository.create(car);
+        assertTrue(carCreated, "Car should be created");
+
+        SalesOrder order = new SalesOrder(0, customer, car, OrderStatus.IN_PROGRESS, LocalDate.now());
+        boolean orderCreated = orderRepository.create(order);
+        assertTrue(orderCreated, "Order should be created");
+
+        order.setStatus(OrderStatus.COMPLETE);
+        order.setDate(LocalDate.now().plusDays(1));
+        orderRepository.update(order);
+
+        var fetchedOrder = orderRepository.findById(order.getId());
+        assertTrue(fetchedOrder.isPresent(), "Order should be found");
+        assertEquals(OrderStatus.COMPLETE, fetchedOrder.get().getStatus(), "Order status should match after update");
+        assertEquals(LocalDate.now().plusDays(1), fetchedOrder.get().getDate(), "Order date should match after update");
     }
 
     @Test
-    void testFindByFilter() {
-        User customer1 = new User(Role.CLIENT, "johndoe", "password123");
-        User customer2 = new User(Role.MANAGER, "janesmith", "password456");
-        Car car1 = new Car("Toyota", "Camry", 2020, 30000L);
-        Car car2 = new Car("Honda", "Civic", 2021, 25000L);
-        SalesOrder order1 = new SalesOrder(customer1, car1);
-        SalesOrder order2 = new SalesOrder(customer2, car2);
+    public void testFindById() {
+        User customer = new User(Role.CLIENT, "user7", "pass");
+        customer.setName("test");
+        customer.setSurname("test2");
+        customer.setPhone("34939483");
 
-        orderRepository.create(order1);
-        orderRepository.create(order2);
+        boolean userCreated = userRepository.create(customer);
+        assertTrue(userCreated, "User should be created");
 
-        Predicate<SalesOrder> filterCondition = order -> "Toyota".equals(order.getCar().getMake());
-        List<SalesOrder> filteredOrders = orderRepository.findByFilter(filterCondition).collect(Collectors.toList());
+        Car car = new Car("Toyota", "Camry", 2020, 30000);
+        car.setState(CarState.FOR_SALE);
 
-        assertEquals(1, filteredOrders.size(), "There should be 1 Toyota car order in the repository");
-        assertTrue(filteredOrders.contains(order1), "Order1 should be in the filtered results");
-        assertFalse(filteredOrders.contains(order2), "Order2 should not be in the filtered results");
+        boolean carCreated = carRepository.create(car);
+        assertTrue(carCreated, "Car should be created");
+
+        SalesOrder order = new SalesOrder(0, customer, car, OrderStatus.IN_PROGRESS, LocalDate.now());
+        boolean orderCreated = orderRepository.create(order);
+        assertTrue(orderCreated, "Order should be created");
+
+        var fetchedOrder = orderRepository.findById(order.getId());
+        assertTrue(fetchedOrder.isPresent(), "Order should be found");
+        assertEquals(customer.getId(), fetchedOrder.get().getCustomer().getId(), "Customer ID should match");
+        assertEquals(car.getId(), fetchedOrder.get().getCar().getId(), "Car ID should match");
+    }
+
+    @AfterAll
+    public static void tearDownAll() {
+        postgreSQLContainer.stop();
     }
 }

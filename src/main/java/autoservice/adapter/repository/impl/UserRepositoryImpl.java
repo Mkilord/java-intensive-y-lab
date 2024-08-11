@@ -6,10 +6,7 @@ import autoservice.adapter.repository.UserRepository;
 import autoservice.model.Role;
 import autoservice.model.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +30,7 @@ public class UserRepositoryImpl implements UserRepository {
         String sql = "INSERT INTO car_service.user (username, password, name, surname, phone, role) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getPassword());
@@ -43,18 +40,22 @@ public class UserRepositoryImpl implements UserRepository {
             statement.setString(6, user.getRole().name());
 
             int rowsAffected = statement.executeUpdate();
-            var isOk = rowsAffected > 0;
-            if (isOk) {
-                System.out.println("User create successful!");
-                return true;
+
+            if (rowsAffected > 0) {
+                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int generatedId = generatedKeys.getInt(1);
+                        user.setId(generatedId);
+                        return true;
+                    }
+                }
             }
-            System.out.println("User isn't create!");
-            return false;
         } catch (SQLException e) {
             CRUDRepository.getSQLError(e);
-            return false;
         }
+        return false;
     }
+
 
     /**
      * Removes a {@link User} from the repository.

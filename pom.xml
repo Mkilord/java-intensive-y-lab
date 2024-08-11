@@ -5,12 +5,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.mkilord</groupId>
-    <developers>
-        <developer>
-            <name>Mkilord</name>
-            <email>mkilord6666@gmail.com</email>
-        </developer>
-    </developers>
     <artifactId>y-lab-course</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -24,22 +18,34 @@
         <postgres.version>42.7.2</postgres.version>
         <liquibase.version>4.23.0</liquibase.version>
         <liquibase.plugin.version>4.17.0</liquibase.plugin.version>
-        <liquibase.plugin.version>4.17.0</liquibase.plugin.version>
-        <exec.maven.plugin.version>3.0.0</exec.maven.plugin.version>
+        <test-containers.version>1.19.0</test-containers.version>
     </properties>
+
+    <developers>
+        <developer>
+            <name>Mkilord</name>
+            <email>mkilord6666@gmail.com</email>
+        </developer>
+    </developers>
+
     <dependencies>
+        <!-- Mockito -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -52,19 +58,45 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- PostgreSQL JDBC Driver -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgres.version}</version>
         </dependency>
+
+        <!-- Liquibase Core -->
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
             <version>${liquibase.version}</version>
         </dependency>
+
+        <!-- Testcontainers: PostgreSQL module -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${test-containers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${test-containers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${test-containers.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
     <build>
         <plugins>
+            <!-- Liquibase Maven Plugin -->
             <plugin>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-maven-plugin</artifactId>

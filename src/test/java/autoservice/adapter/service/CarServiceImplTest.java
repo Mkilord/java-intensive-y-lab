@@ -1,11 +1,11 @@
 package autoservice.adapter.service;
 
+import autoservice.adapter.repository.CarRepository;
 import autoservice.adapter.service.impl.CarServiceImpl;
 import autoservice.model.Car;
 import autoservice.model.CarState;
 import autoservice.model.Role;
 import autoservice.model.User;
-import autoservice.adapter.repository.CarRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -98,7 +99,7 @@ class CarServiceImplTest {
         Car car = new Car("Toyota", "Corolla", 2020, 20000);
         User user = new User(Role.MANAGER, "manager", "password");
 
-        carService.markForSale(car, user);
+        carService.changeStatus(car, user, CarState.FOR_SALE);
 
         assertEquals(CarState.FOR_SALE, car.getState(), "Car should be marked as FOR_SALE");
     }
@@ -108,7 +109,7 @@ class CarServiceImplTest {
         Car car = new Car("Toyota", "Corolla", 2020, 20000);
         User user = new User(Role.MANAGER, "manager", "password");
 
-        carService.markForSold(car, user);
+        carService.changeStatus(car, user, CarState.SOLD);
 
         assertEquals(CarState.SOLD, car.getState(), "Car should be marked as SOLD");
     }
@@ -118,7 +119,7 @@ class CarServiceImplTest {
         Car car = new Car("Toyota", "Corolla", 2020, 20000);
         User user = new User(Role.MANAGER, "manager", "password");
 
-        carService.markForNotSale(car, user);
+        carService.changeStatus(car, user, CarState.NOT_SALE);
 
         assertEquals(CarState.NOT_SALE, car.getState(), "Car should be marked as NOT_SALE");
     }
@@ -128,7 +129,7 @@ class CarServiceImplTest {
         Car car = new Car("Toyota", "Corolla", 2020, 20000);
         User user = new User(Role.MANAGER, "manager", "password");
 
-        carService.markForService(car, user);
+        carService.changeStatus(car, user, CarState.FOR_SERVICE);
 
         assertEquals(CarState.FOR_SERVICE, car.getState(), "Car should be marked as FOR_SERVICE");
     }

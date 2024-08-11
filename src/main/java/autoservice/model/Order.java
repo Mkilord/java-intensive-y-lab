@@ -15,6 +15,7 @@ public abstract class Order implements View {
     protected int id;
     protected final User customer;
     protected final Car car;
+    @Setter
     protected LocalDate date;
     @Setter
     protected OrderStatus status = OrderStatus.IN_PROGRESS;

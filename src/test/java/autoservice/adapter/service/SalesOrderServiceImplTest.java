@@ -1,5 +1,6 @@
 package autoservice.adapter.service;
 
+import autoservice.adapter.repository.CarRepository;
 import autoservice.adapter.repository.OrderRepository;
 import autoservice.adapter.service.impl.SalesOrderServiceImpl;
 import autoservice.model.*;
@@ -15,12 +16,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class SalesOrderServiceImplTest {
 
     private OrderRepository orderRepo;
-    private SalesOrderService salesOrderService;
+    private MyOrderService<SalesOrder> salesOrderService;
 
     @BeforeEach
     void setUp() {
         orderRepo = Mockito.mock(OrderRepository.class);
-        salesOrderService = new SalesOrderServiceImpl(orderRepo);
+        salesOrderService = new SalesOrderServiceImpl(orderRepo, Mockito.mock(CarRepository.class));
     }
 
     @Test
