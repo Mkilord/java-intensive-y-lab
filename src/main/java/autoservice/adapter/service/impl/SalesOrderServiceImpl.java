@@ -1,7 +1,8 @@
 package autoservice.adapter.service.impl;
 
+import autoservice.adapter.repository.CarRepository;
 import autoservice.adapter.repository.OrderRepository;
-import autoservice.adapter.service.SalesOrderService;
+import autoservice.adapter.service.MyOrderService;
 import autoservice.model.*;
 
 import java.util.List;
@@ -10,18 +11,20 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of the {@link SalesOrderService} interface.
+ *
  */
-public class SalesOrderServiceImpl implements SalesOrderService {
+public class SalesOrderServiceImpl implements MyOrderService<SalesOrder> {
     private final OrderRepository orderRepo;
+    private final CarRepository carRepo;
 
     /**
      * Constructs a new {@code OrderServiceImpl} with the specified {@link OrderRepository}.
      *
      * @param orderRepo the repository used for order data
      */
-    public SalesOrderServiceImpl(OrderRepository orderRepo) {
+    public SalesOrderServiceImpl(OrderRepository orderRepo, CarRepository carRepo) {
         this.orderRepo = orderRepo;
+        this.carRepo = carRepo;
     }
 
     /**
@@ -42,6 +45,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
             throw new RuntimeException("The order has not been created! The car has the status: " + car.getState());
         }
         car.setState(CarState.SOLD);
+        carRepo.update(car);
         return orderRepo.create(order);
     }
 
@@ -84,6 +88,7 @@ public class SalesOrderServiceImpl implements SalesOrderService {
     @Override
     public void complete(SalesOrder order) {
         order.setStatus(OrderStatus.COMPLETE);
+        orderRepo.update(order);
     }
 
     /**
@@ -96,6 +101,8 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         var car = order.getCar();
         car.setState(CarState.FOR_SALE);
         order.setStatus(OrderStatus.CANCEL);
+        orderRepo.update(order);
+        carRepo.update(car);
     }
 
     /**
@@ -105,8 +112,11 @@ public class SalesOrderServiceImpl implements SalesOrderService {
      */
     @Override
     public void inProgress(SalesOrder order) {
-        order.getCar().setState(CarState.SOLD);
+        var car = order.getCar();
+        car.setState(CarState.SOLD);
         order.setStatus(OrderStatus.IN_PROGRESS);
+        carRepo.update(car);
+        orderRepo.update(order);
     }
 
     /**

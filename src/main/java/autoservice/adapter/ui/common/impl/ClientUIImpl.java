@@ -1,8 +1,7 @@
 package autoservice.adapter.ui.common.impl;
 
 import autoservice.adapter.service.CarService;
-import autoservice.adapter.service.SalesOrderService;
-import autoservice.adapter.service.ServiceOrderService;
+import autoservice.adapter.service.MyOrderService;
 import autoservice.adapter.service.impl.AuditService;
 import autoservice.adapter.ui.components.menu.Menu;
 import autoservice.adapter.ui.components.menu.SelectAction;
@@ -21,7 +20,10 @@ import static autoservice.adapter.ui.components.menu.SelectAction.*;
 
 public class ClientUIImpl extends AppUIImpl {
 
-    public ClientUIImpl(Scanner in, CarService carService, SalesOrderService salesOrderService, ServiceOrderService serviceOrderService, User loggedInUser) {
+    public ClientUIImpl(Scanner in, CarService carService,
+                        MyOrderService<SalesOrder> salesOrderService,
+                        MyOrderService<ServiceOrder> serviceOrderService,
+                        User loggedInUser) {
         super(in, carService, salesOrderService, serviceOrderService, loggedInUser);
     }
 
@@ -38,18 +40,19 @@ public class ClientUIImpl extends AppUIImpl {
                     return CONTINUE;
                 }, () -> {
                     showOrders(new ArrayList<>(salesOrderService.getOrdersByFilter(order -> order.getCustomer().equals(loggedInUser)
-                            && order.getStatus().equals(OrderStatus.IN_PROGRESS))));
+                            && order.getStatus().equals(OrderStatus.IN_PROGRESS))),salesOrderService);
                     return CONTINUE;
                 }, () -> EXIT
         ).readInCycle(in, menu);
     }
 
+
     @Override
-    public void showOrdersMenu(List<Order> orders) {
+    public <T extends Order> void showOrdersMenu(List<T> orders, MyOrderService<T> orderService) {
         var menu = Menu.create("Select", "Sort", "Search", GO_BACK_VIEW)
                 .withHeader("Select function: ");
         create(() -> {
-                    selectOrder(orders);
+                    selectOrder(orders, orderService);
                     return EXIT;
                 }, () -> {
                     showOrderSortMenu(orders);
@@ -63,16 +66,16 @@ public class ClientUIImpl extends AppUIImpl {
     }
 
     @Override
-    public void showOrderOptions(Order order) {
+    public <T extends Order> void showOrderOptions(T order, MyOrderService<T> orderService) {
         Menu.create("Cancel", GO_BACK_VIEW).print();
         SelectAction.create(() -> {
-            showCancelOrder(order);
+            showCancelOrder(order, orderService);
             return EXIT;
         }, () -> EXIT).read(in);
     }
 
     @Override
-    public void showOrderSortMenu(List<Order> orders) {
+    public <T extends Order> void showOrderSortMenu(List<T> orders) {
         if (orders.isEmpty()) {
             System.out.println("Nothing was found for this query!");
             return;

@@ -1,7 +1,7 @@
 package autoservice.adapter.service.impl;
 
 import autoservice.adapter.repository.ServiceOrderRepository;
-import autoservice.adapter.service.ServiceOrderService;
+import autoservice.adapter.service.MyOrderService;
 import autoservice.model.OrderStatus;
 import autoservice.model.ServiceOrder;
 
@@ -11,9 +11,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of the {@link ServiceOrderService} interface.
  */
-public class ServiceOrderServiceImpl implements ServiceOrderService {
+public class ServiceOrderServiceImpl implements MyOrderService<ServiceOrder> {
 
     private final ServiceOrderRepository serviceOrderRepo;
 
@@ -56,6 +55,7 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
     @Override
     public void complete(ServiceOrder order) {
         order.setStatus(OrderStatus.COMPLETE);
+        serviceOrderRepo.update(order);
     }
 
     /**
@@ -66,6 +66,7 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
     @Override
     public void cancel(ServiceOrder order) {
         order.setStatus(OrderStatus.CANCEL);
+        serviceOrderRepo.update(order);
     }
 
     /**
@@ -76,6 +77,7 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
     @Override
     public void inProgress(ServiceOrder order) {
         order.setStatus(OrderStatus.IN_PROGRESS);
+        serviceOrderRepo.update(order);
     }
 
     /**

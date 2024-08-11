@@ -1,8 +1,7 @@
 package autoservice.adapter.ui.common.impl;
 
 import autoservice.adapter.service.CarService;
-import autoservice.adapter.service.SalesOrderService;
-import autoservice.adapter.service.ServiceOrderService;
+import autoservice.adapter.service.MyOrderService;
 import autoservice.adapter.service.UserService;
 import autoservice.adapter.service.impl.AuditService;
 import autoservice.adapter.ui.common.editors.PeopleEditor;
@@ -10,8 +9,7 @@ import autoservice.adapter.ui.components.menu.Menu;
 import autoservice.adapter.ui.components.menu.SelectAction;
 import autoservice.adapter.ui.components.utils.ModalMenu;
 import autoservice.adapter.ui.components.utils.Viewer;
-import autoservice.model.Role;
-import autoservice.model.User;
+import autoservice.model.*;
 import lombok.AllArgsConstructor;
 
 import java.io.IOException;
@@ -29,8 +27,8 @@ import static autoservice.model.AuditAction.EDIT_USER;
 
 public class AdminUIImpl extends EmployeeUIImpl implements PeopleEditor {
     public AdminUIImpl(Scanner in, CarService carService,
-                       SalesOrderService salesOrderService,
-                       ServiceOrderService serviceOrderService,
+                       MyOrderService<SalesOrder> salesOrderService,
+                       MyOrderService<ServiceOrder> serviceOrderService,
                        UserService userService, User loggedInUser) {
         super(in, carService, salesOrderService, serviceOrderService, userService, loggedInUser);
     }
@@ -50,10 +48,10 @@ public class AdminUIImpl extends EmployeeUIImpl implements PeopleEditor {
                     showCarsMenu();
                     return CONTINUE;
                 }, () -> {
-                    showOrders(new ArrayList<>(salesOrderService.getAllOrders()));
+                    showOrders(new ArrayList<>(salesOrderService.getAllOrders()), salesOrderService);
                     return CONTINUE;
                 }, () -> {
-                    showOrders(new ArrayList<>(serviceOrderService.getAllOrders()));
+                    showOrders(new ArrayList<>(serviceOrderService.getAllOrders()), serviceOrderService);
                     return CONTINUE;
                 }, () -> {
                     showUsers(userService.getAllUsers());
@@ -258,4 +256,5 @@ public class AdminUIImpl extends EmployeeUIImpl implements PeopleEditor {
         var logs = AuditService.filterLogsByString(input);
         Viewer.viewAllStrings(logs, "Not found!");
     }
+
 }

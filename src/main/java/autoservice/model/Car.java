@@ -10,7 +10,6 @@ import lombok.ToString;
 @Getter
 @Setter
 public class Car implements View {
-    //    private static int idCounter = 1;
     private int id;
     private String make;
     private String model;
@@ -19,12 +18,19 @@ public class Car implements View {
     private CarState state = CarState.FOR_SALE;
 
     public Car(String make, String model, int year, long price) {
-//        this.id = id;
-//        this.id = idCounter++;
         this.make = make;
         this.model = model;
         this.year = year;
         this.price = price;
+    }
+
+    public Car(int id, String make, String model, int year, long price, CarState state) {
+        this.id = id;
+        this.make = make;
+        this.model = model;
+        this.year = year;
+        this.price = price;
+        this.state = state;
     }
 
     @Override

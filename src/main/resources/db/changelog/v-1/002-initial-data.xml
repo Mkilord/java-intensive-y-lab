@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="002_initial_data_users_table" author="Mkilord">
+        <insert tableName="user" schemaName="car_service">
+            <column name="role" value="CLIENT"/>
+            <column name="username" value="client1"/>
+            <column name="password" value="password1"/>
+            <column name="name" value="John"/>
+            <column name="surname" value="Doe"/>
+            <column name="phone" value="123-456-7890"/>
+        </insert>
+        <insert tableName="user" schemaName="car_service">
+            <column name="role" value="MANAGER"/>
+            <column name="username" value="manager1"/>
+            <column name="password" value="password2"/>
+            <column name="name" value="Jane"/>
+            <column name="surname" value="Smith"/>
+            <column name="phone" value="987-654-3210"/>
+        </insert>
+        <insert tableName="user" schemaName="car_service">
+            <column name="role" value="CLIENT"/>
+            <column name="username" value="client2"/>
+            <column name="password" value="password3"/>
+            <column name="name" value="Alice"/>
+            <column name="surname" value="Johnson"/>
+            <column name="phone" value="456-789-0123"/>
+        </insert>
+        <insert tableName="user" schemaName="car_service">
+            <column name="role" value="MANAGER"/>
+            <column name="username" value="manager2"/>
+            <column name="password" value="password4"/>
+            <column name="name" value="Bob"/>
+            <column name="surname" value="Brown"/>
+            <column name="phone" value="321-654-9870"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="002_initial_data_car_table" author="Mkilord">
+        <insert tableName="car" schemaName="car_service">
+            <column name="make" value="Toyota"/>
+            <column name="model" value="Camry"/>
+            <column name="year" value="2022"/>
+            <column name="price" value="2500000"/>
+            <column name="state" value="FOR_SALE"/>
+        </insert>
+        <insert tableName="car" schemaName="car_service">
+            <column name="make" value="Ford"/>
+            <column name="model" value="Mustang"/>
+            <column name="year" value="2021"/>
+            <column name="price" value="3500000"/>
+            <column name="state" value="FOR_SALE"/>
+        </insert>
+        <insert tableName="car" schemaName="car_service">
+            <column name="make" value="Honda"/>
+            <column name="model" value="Civic"/>
+            <column name="year" value="2023"/>
+            <column name="price" value="2000000"/>
+            <column name="state" value="FOR_SALE"/>
+        </insert>
+        <insert tableName="car" schemaName="car_service">
+            <column name="make" value="Chevrolet"/>
+            <column name="model" value="Malibu"/>
+            <column name="year" value="2020"/>
+            <column name="price" value="1800000"/>
+            <column name="state" value="FOR_SALE"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="002_initial_data_sales_order_table" author="Mkilord">
+        <insert tableName="sales_order" schemaName="car_service">
+            <column name="customer_id" value="1"/>
+            <column name="car_id" value="1"/>
+            <column name="date" valueDate="2024-08-10T10:00:00"/>
+            <column name="status" value="IN_PROGRESS"/>
+        </insert>
+        <insert tableName="sales_order" schemaName="car_service">
+            <column name="customer_id" value="2"/>
+            <column name="car_id" value="2"/>
+            <column name="date" valueDate="2024-08-11T14:30:00"/>
+            <column name="status" value="COMPLETE"/>
+        </insert>
+        <insert tableName="sales_order" schemaName="car_service">
+            <column name="customer_id" value="3"/>
+            <column name="car_id" value="3"/>
+            <column name="date" valueDate="2024-08-12T09:15:00"/>
+            <column name="status" value="IN_PROGRESS"/>
+        </insert>
+        <insert tableName="sales_order" schemaName="car_service">
+            <column name="customer_id" value="4"/>
+            <column name="car_id" value="4"/>
+            <column name="date" valueDate="2024-08-13T16:45:00"/>
+            <column name="status" value="COMPLETE"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="002_initial_data_service_order_table" author="Mkilord">
+        <insert tableName="service_order" schemaName="car_service">
+            <column name="customer_id" value="1"/>
+            <column name="car_id" value="1"/>
+            <column name="date" valueDate="2024-08-10T10:00:00"/>
+            <column name="status" value="IN_PROGRESS"/>
+        </insert>
+        <insert tableName="service_order" schemaName="car_service">
+            <column name="customer_id" value="2"/>
+            <column name="car_id" value="2"/>
+            <column name="date" valueDate="2024-08-11T14:30:00"/>
+            <column name="status" value="COMPLETE"/>
+        </insert>
+        <insert tableName="service_order" schemaName="car_service">
+            <column name="customer_id" value="3"/>
+            <column name="car_id" value="3"/>
+            <column name="date" valueDate="2024-08-12T09:15:00"/>
+            <column name="status" value="IN_PROGRESS"/>
+        </insert>
+        <insert tableName="service_order" schemaName="car_service">
+            <column name="customer_id" value="4"/>
+            <column name="car_id" value="4"/>
+            <column name="date" valueDate="2024-08-13T16:45:00"/>
+            <column name="status" value="COMPLETE"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

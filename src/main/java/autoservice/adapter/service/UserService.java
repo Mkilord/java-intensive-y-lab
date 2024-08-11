@@ -22,14 +22,14 @@ public interface UserService {
      */
     List<User> getAllUsers();
 
-    /**
-     * Retrieves a user by their username.
-     *
-     * @param username the username of the user
-     * @return an {@code Optional} containing the user if found, or {@code empty} if no user with the given username exists
-     */
-    Optional<User> getByUsername(String username);
-
+//    /**
+//     * Retrieves a user by their username.
+//     *
+//     * @param username the username of the user
+//     * @return an {@code Optional} containing the user if found, or {@code empty} if no user with the given username exists
+//     */
+//    Optional<User> getByUsername(String username);
+    Optional<User> getUserByID(int id);
     /**
      * Retrieves all users that match the given filter criteria.
      *

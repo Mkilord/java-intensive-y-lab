@@ -1,9 +1,10 @@
 package autoservice.adapter.ui.common.editors;
 
+import autoservice.adapter.service.MyOrderService;
 import autoservice.model.Order;
 
 public interface OrderEditor {
-    void showDelete(Order order);
+    <T extends Order> void  showDelete(T order, MyOrderService<T> orderService);
 
-    void showChangeStatus(Order order);
+    <T extends Order> void showChangeStatus(T order, MyOrderService<T> orderService);
 }

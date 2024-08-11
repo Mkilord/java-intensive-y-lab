@@ -91,15 +91,13 @@ public class UserAuthServiceImpl implements UserAuthService {
         return authRepo.findByFilter(predicate).findFirst();
     }
 
-    /**
-     * Retrieves a user by their username.
-     *
-     * @param username the username of the user
-     * @return an {@link Optional} containing the user if found, or an empty {@link Optional} if no user with the given username exists
-     */
-    @Deprecated
     @Override
     public Optional<User> getByUsername(String username) {
-        return authRepo.findByFilter(user -> user.getUsername().equals(username)).findFirst();
+        return authRepo.getByUsername(username);
+    }
+
+    @Override
+    public Optional<User> getByUsernameAndPassword(String username, String password) {
+        return authRepo.getByUsernameAndPassword(username, password);
     }
 }

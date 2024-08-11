@@ -2,6 +2,8 @@ package autoservice.adapter.repository;
 
 import autoservice.model.User;
 
+import java.util.Optional;
+
 /**
  * Repository interface for managing {@link User} objects.
  * <p>
@@ -12,4 +14,7 @@ import autoservice.model.User;
  * @see User
  */
 public interface UserRepository extends CRUDRepository<User> {
+
+    Optional<User> getByUsernameAndPassword(String username, String password);
+    Optional<User> getByUsername(String username);
 }

@@ -1,6 +1,7 @@
 package autoservice.adapter.service;
 
 import autoservice.model.Car;
+import autoservice.model.CarState;
 import autoservice.model.Role;
 import autoservice.model.User;
 
@@ -65,6 +66,8 @@ public interface CarService {
      */
     List<Car> getCarsByFilter(Predicate<Car> predicate);
 
+    void editCar(Car car);
+    void changeStatus(Car car, User user, CarState newState);
     /**
      * Marks a {@link Car} as available for sale.
      * <p>
@@ -73,6 +76,8 @@ public interface CarService {
      * @param car  the car to be marked for sale
      * @param user the user performing the action
      */
+
+    @Deprecated
     void markForSale(Car car, User user);
 
     /**
@@ -83,6 +88,7 @@ public interface CarService {
      * @param car  the car to be marked as sold
      * @param user the user performing the action
      */
+    @Deprecated
     void markForSold(Car car, User user);
 
     /**
@@ -93,6 +99,7 @@ public interface CarService {
      * @param car  the car to be marked as not for sale
      * @param user the user performing the action
      */
+    @Deprecated
     void markForNotSale(Car car, User user);
 
     /**
@@ -103,6 +110,7 @@ public interface CarService {
      * @param car  the car to be marked for service
      * @param user the user performing the action
      */
+    @Deprecated
     void markForService(Car car, User user);
 
 }

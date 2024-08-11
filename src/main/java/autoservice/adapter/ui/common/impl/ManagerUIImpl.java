@@ -1,13 +1,14 @@
 package autoservice.adapter.ui.common.impl;
 
 import autoservice.adapter.service.CarService;
-import autoservice.adapter.service.SalesOrderService;
-import autoservice.adapter.service.ServiceOrderService;
+import autoservice.adapter.service.MyOrderService;
 import autoservice.adapter.service.UserService;
 import autoservice.adapter.ui.components.menu.Menu;
 import autoservice.adapter.ui.components.menu.SelectAction;
 import autoservice.adapter.ui.components.utils.Viewer;
 import autoservice.model.Role;
+import autoservice.model.SalesOrder;
+import autoservice.model.ServiceOrder;
 import autoservice.model.User;
 
 import java.util.ArrayList;
@@ -21,8 +22,8 @@ import static autoservice.adapter.ui.components.menu.SelectAction.*;
 
 public class ManagerUIImpl extends EmployeeUIImpl {
     public ManagerUIImpl(Scanner in, CarService carService,
-                         SalesOrderService salesOrderService,
-                         ServiceOrderService serviceOrderService,
+                         MyOrderService<SalesOrder> salesOrderService,
+                         MyOrderService<ServiceOrder> serviceOrderService,
                          UserService userService,
                          User loggedInUser) {
         super(in, carService, salesOrderService, serviceOrderService, userService, loggedInUser);
@@ -42,10 +43,10 @@ public class ManagerUIImpl extends EmployeeUIImpl {
                     showCarsMenu();
                     return CONTINUE;
                 }, () -> {
-                    showOrders(new ArrayList<>(salesOrderService.getAllOrders()));
+                    showOrders(new ArrayList<>(salesOrderService.getAllOrders()), salesOrderService);
                     return CONTINUE;
                 }, () -> {
-                    showOrders(new ArrayList<>(serviceOrderService.getAllOrders()));
+                    showOrders(new ArrayList<>(serviceOrderService.getAllOrders()), serviceOrderService);
                     return CONTINUE;
                 }, () -> {
                     showUsers(userService.getUsersByFilter(user -> user.getRole().equals(Role.CLIENT)));

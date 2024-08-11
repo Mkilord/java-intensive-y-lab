@@ -1,6 +1,8 @@
 package autoservice.adapter.repository;
 
+import autoservice.adapter.repository.impl.CarRepositoryImpl;
 import autoservice.adapter.repository.impl.ServiceOrderRepositoryImpl;
+import autoservice.adapter.repository.impl.UserRepositoryImpl;
 import autoservice.model.Car;
 import autoservice.model.Role;
 import autoservice.model.ServiceOrder;
@@ -21,7 +23,7 @@ class ServiceOrderRepositoryImplTest {
 
     @BeforeEach
     void setUp() {
-        serviceOrderRepository = new ServiceOrderRepositoryImpl();
+        serviceOrderRepository = new ServiceOrderRepositoryImpl(new UserRepositoryImpl(),new CarRepositoryImpl());
     }
 
     @Test

@@ -1,9 +1,17 @@
 package autoservice.model;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 public class ServiceOrder extends Order {
     public ServiceOrder(User customer, Car car) {
         super(customer, car);
     }
+
+    public ServiceOrder(int id, User customer, Car car, OrderStatus status, LocalDate date) {
+        super(id, customer, car, status, date);
+    }
+
 
     @Override
     public String getView() {

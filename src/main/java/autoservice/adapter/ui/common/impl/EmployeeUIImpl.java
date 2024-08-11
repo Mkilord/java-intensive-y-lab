@@ -1,8 +1,7 @@
 package autoservice.adapter.ui.common.impl;
 
 import autoservice.adapter.service.CarService;
-import autoservice.adapter.service.SalesOrderService;
-import autoservice.adapter.service.ServiceOrderService;
+import autoservice.adapter.service.MyOrderService;
 import autoservice.adapter.service.UserService;
 import autoservice.adapter.service.impl.AuditService;
 import autoservice.adapter.service.impl.UserServiceImpl;
@@ -26,8 +25,8 @@ import static autoservice.adapter.ui.components.utils.ConsoleUtils.*;
 
 public abstract class EmployeeUIImpl extends AppUIImpl implements EmployeeUI {
     protected EmployeeUIImpl(Scanner in, CarService carService,
-                             SalesOrderService salesOrderService,
-                             ServiceOrderService serviceOrderService,
+                             MyOrderService<SalesOrder> salesOrderService,
+                             MyOrderService<ServiceOrder> serviceOrderService,
                              UserService userService, User loggedInUser) {
         super(in, carService, salesOrderService, serviceOrderService, loggedInUser);
         this.userService = userService;
@@ -100,6 +99,7 @@ public abstract class EmployeeUIImpl extends AppUIImpl implements EmployeeUI {
             car.setModel(tempCar.model);
             car.setYear(tempCar.year);
             car.setPrice(tempCar.price);
+            carService.editCar(car);
             AuditService.logAction(loggedInUser.getUsername(), AuditAction.EDIT_CAR, "Car id: " + car.getId());
             System.out.println("Car was changed!");
             return EXIT;
@@ -163,22 +163,22 @@ public abstract class EmployeeUIImpl extends AppUIImpl implements EmployeeUI {
                 "Service",
                 GO_BACK_VIEW).withHeader("Select option:");
         create(() -> {
-                    carService.markForSale(car, loggedInUser);
+                    carService.changeStatus(car, loggedInUser, CarState.FOR_SALE);
                     System.out.println("Status was changed to For Sale!");
                     AuditService.logAction(loggedInUser.getUsername(), AuditAction.CHANGE_CAR_STATUS);
                     return EXIT;
                 }, () -> {
-                    carService.markForNotSale(car, loggedInUser);
+                    carService.changeStatus(car, loggedInUser, CarState.NOT_SALE);
                     System.out.println("Status was changed to Not Sale!");
                     AuditService.logAction(loggedInUser.getUsername(), AuditAction.CHANGE_CAR_STATUS);
                     return EXIT;
                 }, () -> {
-                    carService.markForSold(car, loggedInUser);
+                    carService.changeStatus(car, loggedInUser, CarState.SOLD);
                     System.out.println("Status was changed to Sold");
                     AuditService.logAction(loggedInUser.getUsername(), AuditAction.CHANGE_CAR_STATUS);
                     return EXIT;
                 }, () -> {
-                    carService.markForService(car, loggedInUser);
+                    carService.changeStatus(car, loggedInUser, CarState.FOR_SERVICE);
                     System.out.println("Status was changer to for Service");
                     AuditService.logAction(loggedInUser.getUsername(), AuditAction.CHANGE_CAR_STATUS);
                     return EXIT;
@@ -242,14 +242,14 @@ public abstract class EmployeeUIImpl extends AppUIImpl implements EmployeeUI {
     }
 
     @Override
-    public void showOrdersMenu(List<Order> orders) {
+    public <T extends Order> void showOrdersMenu(List<T> orders, MyOrderService<T> myOrderService) {
         var menu = Menu.create(
                 "Select",
                 "Sort",
                 "Search",
                 GO_BACK_VIEW).withHeader("Select option:");
         create(() -> {
-                    selectOrder(orders);
+                    selectOrder(orders, myOrderService);
                     return EXIT;
                 }, () -> {
                     showOrderSortMenu(orders);
@@ -261,35 +261,37 @@ public abstract class EmployeeUIImpl extends AppUIImpl implements EmployeeUI {
         ).readInCycle(in, menu);
     }
 
+
     @Override
-    public void showDelete(Order order) {
+    public <T extends Order> void showDelete(T order, MyOrderService<T> orderService) {
         System.out.println("Order for delete:");
         Viewer.viewOf(order);
         ModalMenu.getYesOrNoDialog(in, "Do you have delete order?", () -> {
-            salesOrderService.delete((SalesOrder) order);
+            orderService.delete(order);
             System.out.println("Order was deleted!");
             return EXIT;
         }, GO_BACK_ACTION);
     }
 
     @Override
-    public void showOrderOptions(Order order) {
+    public <T extends Order> void showOrderOptions(T order, MyOrderService<T> orderService) {
         var menu = Menu.create(
                 "Delete",
                 "Change Status",
                 GO_BACK_VIEW).withHeader("Select option:");
         create(() -> {
-                    showDelete(order);
+                    showDelete(order, orderService);
                     return EXIT;
                 }, () -> {
-                    showChangeStatus(order);
+                    showChangeStatus(order, orderService);
                     return EXIT;
                 }, () -> EXIT
         ).readInCycle(in, menu);
     }
 
+
     @Override
-    public void showChangeStatus(Order order) {
+    public <T extends Order> void showChangeStatus(T order, MyOrderService<T> orderService) {
         System.out.println("Order for change status:");
         System.out.println("Actual status: " + order.getStatus());
         System.out.println(order.getView());
@@ -299,17 +301,17 @@ public abstract class EmployeeUIImpl extends AppUIImpl implements EmployeeUI {
                 "Cancel",
                 GO_BACK_VIEW).withHeader("Select option:");
         create(() -> {
-                    salesOrderService.complete((SalesOrder) order);
+                    orderService.complete(order);
                     System.out.println("Status was changed to Complete!");
                     AuditService.logAction(loggedInUser.getUsername(), AuditAction.CHANGE_ORDER_STATUS);
                     return EXIT;
                 }, () -> {
-                    salesOrderService.inProgress((SalesOrder) order);
+                    orderService.inProgress(order);
                     System.out.println("Status was changed to In Progress!");
                     AuditService.logAction(loggedInUser.getUsername(), AuditAction.CHANGE_ORDER_STATUS);
                     return EXIT;
                 }, () -> {
-                    salesOrderService.cancel((SalesOrder) order);
+                    orderService.cancel(order);
                     System.out.println("Status was changed to Cancel");
                     AuditService.logAction(loggedInUser.getUsername(), AuditAction.CHANGE_ORDER_STATUS);
                     return EXIT;
@@ -318,7 +320,7 @@ public abstract class EmployeeUIImpl extends AppUIImpl implements EmployeeUI {
     }
 
     @Override
-    public void showOrderSortMenu(List<Order> orders) {
+    public <T extends Order> void showOrderSortMenu(List<T> orders) {
         if (orders.isEmpty()) {
             System.out.println("Nothing was found for this query!");
             return;
@@ -365,11 +367,11 @@ public abstract class EmployeeUIImpl extends AppUIImpl implements EmployeeUI {
 
     @Override
     public void selectUser(List<User> users) {
-        System.out.println("Input username:");
-        var username = ConsoleUtils.readStr(in, NOT_BLANK_STR);
-        var userOpt = users.stream().filter(user -> user.getUsername().equals(username)).findFirst();
+        System.out.println("Input user id:");
+        var id = ConsoleUtils.readInt(in);
+        var userOpt = users.stream().filter(user -> user.getId()==id).findFirst();
         userOpt.ifPresentOrElse(car -> showUserOptions(userOpt.get()),
-                () -> System.out.println("User with this nickname not found!"));
+                () -> System.out.println("User with this id not found!"));
     }
 
     @Override

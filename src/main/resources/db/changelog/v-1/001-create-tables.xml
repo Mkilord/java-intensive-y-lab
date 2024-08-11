@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="000_create_schema" author="Mkilord">
+        <sql>CREATE SCHEMA IF NOT EXISTS car_service;</sql>
+    </changeSet>
+
+    <changeSet id="001_create_user_table" author="Mkilord">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user" schemaName="car_service"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user" schemaName="car_service">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="role" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="username" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="surname" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="phone" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="002_create_car_table" author="Mkilord">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="car" schemaName="car_service"/>
+            </not>
+        </preConditions>
+        <createTable tableName="car" schemaName="car_service">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="make" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="model" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="year" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="state" type="varchar(255)" defaultValue="FOR_SALE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="003_create_sales_order_table" author="Mkilord">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="sales_order" schemaName="car_service"/>
+            </not>
+        </preConditions>
+        <createTable tableName="sales_order" schemaName="car_service">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="car_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(255)" defaultValue="In progress">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="sales_order"
+                baseColumnNames="customer_id"
+                referencedTableName="user"
+                referencedColumnNames="id"
+                constraintName="fk_sales_order_customer"
+                baseTableSchemaName="car_service"
+                referencedTableSchemaName="car_service"
+        />
+        <addForeignKeyConstraint
+                baseTableName="sales_order"
+                baseColumnNames="car_id"
+                referencedTableName="car"
+                referencedColumnNames="id"
+                constraintName="fk_sales_order_car"
+                baseTableSchemaName="car_service"
+                referencedTableSchemaName="car_service"
+        />
+    </changeSet>
+
+    <changeSet id="004_create_service_order_table" author="Mkilord">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="service_order" schemaName="car_service"/>
+            </not>
+        </preConditions>
+        <createTable tableName="service_order" schemaName="car_service">
+            <column name="id" type="serial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="car_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(255)" defaultValue="In progress">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="service_order"
+                baseColumnNames="customer_id"
+                referencedTableName="user"
+                referencedColumnNames="id"
+                constraintName="fk_service_order_customer"
+                baseTableSchemaName="car_service"
+                referencedTableSchemaName="car_service"
+        />
+        <addForeignKeyConstraint
+                baseTableName="service_order"
+                baseColumnNames="car_id"
+                referencedTableName="car"
+                referencedColumnNames="id"
+                constraintName="fk_service_order_car"
+                baseTableSchemaName="car_service"
+                referencedTableSchemaName="car_service"
+        />
+    </changeSet>
+</databaseChangeLog>

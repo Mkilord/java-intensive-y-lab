@@ -1,8 +1,13 @@
 package autoservice.adapter.ui;
 
-import autoservice.adapter.config.Loader;
+import autoservice.adapter.repository.CarRepository;
+import autoservice.adapter.repository.OrderRepository;
+import autoservice.adapter.repository.ServiceOrderRepository;
 import autoservice.adapter.repository.UserRepository;
+import autoservice.adapter.repository.impl.CarRepositoryImpl;
+import autoservice.adapter.repository.impl.OrderRepositoryImpl;
 import autoservice.adapter.repository.impl.ServiceOrderRepositoryImpl;
+import autoservice.adapter.repository.impl.UserRepositoryImpl;
 import autoservice.adapter.service.*;
 import autoservice.adapter.service.impl.*;
 import autoservice.adapter.ui.common.impl.AdminUIImpl;
@@ -10,9 +15,7 @@ import autoservice.adapter.ui.common.impl.ClientUIImpl;
 import autoservice.adapter.ui.common.impl.ManagerUIImpl;
 import autoservice.adapter.ui.components.menu.Menu;
 import autoservice.adapter.ui.components.menu.SelectAction;
-import autoservice.model.AuditAction;
-import autoservice.model.Role;
-import autoservice.model.User;
+import autoservice.model.*;
 
 import java.util.Optional;
 import java.util.Scanner;
@@ -24,12 +27,16 @@ import static autoservice.adapter.ui.components.utils.ConsoleUtils.*;
 
 public class AppStart {
 
-    private final UserRepository userRepository = Loader.getUserRepoWithDefaultData();
+    private final UserRepository userRepository = new UserRepositoryImpl();
+    private final CarRepository carRepository = new CarRepositoryImpl();
+    private final OrderRepository orderRepository = new OrderRepositoryImpl(userRepository, carRepository);
+    private final ServiceOrderRepository serviceOrderRepository = new ServiceOrderRepositoryImpl(userRepository,carRepository);
+
     private final UserService userService = new UserServiceImpl(userRepository);
-    private final CarService carService = Loader.getCarServiceWithDefaultData();
-    private final UserAuthService userAuthService = new UserAuthServiceImpl(Loader.getUserRepoWithDefaultData());
-    private final SalesOrderService salesOrderService = new SalesOrderServiceImpl(Loader.getOrderRepoWithDefaultData(userAuthService, carService));
-    private final ServiceOrderService serviceOrderService = new ServiceOrderServiceImpl(new ServiceOrderRepositoryImpl());
+    private final CarService carService = new CarServiceImpl(carRepository);
+    private final UserAuthService userAuthService = new UserAuthServiceImpl(userRepository);
+    private final MyOrderService<SalesOrder> salesOrderService = new SalesOrderServiceImpl(orderRepository, carRepository);
+    private final MyOrderService<ServiceOrder> serviceOrderService = new ServiceOrderServiceImpl(serviceOrderRepository);
     public final Scanner in;
     public User loggedInUser;
 

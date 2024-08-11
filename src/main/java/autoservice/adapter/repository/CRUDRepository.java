@@ -1,6 +1,7 @@
 package autoservice.adapter.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -12,6 +13,10 @@ import java.util.stream.Stream;
  * @param <T> the type of objects managed by this repository
  */
 public interface CRUDRepository<T> {
+
+    static void getSQLError(Exception e) {
+        System.err.println("SQL Error: " + e.getMessage());
+    }
     /**
      * Creates a new object in the repository.
      *
@@ -27,6 +32,10 @@ public interface CRUDRepository<T> {
      * @return {@code true} if the object was successfully deleted, {@code false} otherwise
      */
     boolean delete(T object);
+
+    void update(T object);
+
+    Optional<T> findById(int id);
 
     /**
      * Retrieves all objects from the repository.

@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @EqualsAndHashCode
 @ToString(includeFieldNames = false)
@@ -15,12 +15,22 @@ public abstract class Order implements View {
     protected int id;
     protected final User customer;
     protected final Car car;
-    protected final Date date = new Date();
+    protected LocalDate date;
     @Setter
     protected OrderStatus status = OrderStatus.IN_PROGRESS;
 
+    public Order(int id, User customer, Car car, OrderStatus status, LocalDate date) {
+        this.id = id;
+        this.customer = customer;
+        this.car = car;
+        this.status = status;
+        this.date = date;
+    }
+
     public Order(User customer, Car car) {
+        this.date = LocalDate.now();
         this.car = car;
         this.customer = customer;
     }
+
 }

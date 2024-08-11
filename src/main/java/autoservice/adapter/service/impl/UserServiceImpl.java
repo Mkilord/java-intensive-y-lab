@@ -49,16 +49,11 @@ public class UserServiceImpl implements UserService {
         return authRepo.findAll();
     }
 
-    /**
-     * Retrieves a user by their username.
-     *
-     * @param username the username of the user
-     * @return an {@link Optional} containing the user if found, or an empty {@link Optional} if no user with the given username exists
-     */
     @Override
-    public Optional<User> getByUsername(String username) {
-        return authRepo.findByFilter(user -> user.getUsername().equals(username)).findFirst();
+    public Optional<User> getUserByID(int id) {
+        return authRepo.findById(id);
     }
+
 
     /**
      * Retrieves all users that match the specified filter.

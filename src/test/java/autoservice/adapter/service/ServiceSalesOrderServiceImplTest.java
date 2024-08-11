@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ServiceSalesOrderServiceImplTest {
 
     private ServiceOrderRepository serviceOrderRepo;
-    private ServiceOrderService serviceOrderService;
+    private MyOrderService<ServiceOrder> serviceOrderService;
 
     @BeforeEach
     void setUp() {
@@ -142,15 +142,15 @@ class ServiceSalesOrderServiceImplTest {
         order2.setStatus(OrderStatus.IN_PROGRESS);
         List<ServiceOrder> orders = List.of(order1, order2);
 
-        List<ServiceOrder> filteredOrders = ServiceOrderServiceImpl.filterOrdersByString(orders, "test");
+        List<ServiceOrder> filteredOrders = MyOrderService.filterOrdersByString(orders, "test");
         assertEquals(1, filteredOrders.size());
         assertEquals(order1, filteredOrders.get(0));
 
-        filteredOrders = ServiceOrderServiceImpl.filterOrdersByString(orders, OrderStatus.IN_PROGRESS.toString());
+        filteredOrders = MyOrderService.filterOrdersByString(orders, OrderStatus.IN_PROGRESS.toString());
         assertEquals(1, filteredOrders.size());
         assertEquals(order2, filteredOrders.get(0));
 
-        filteredOrders = ServiceOrderServiceImpl.filterOrdersByString(orders, LocalDate.now().toString());
+        filteredOrders = MyOrderService.filterOrdersByString(orders, LocalDate.now().toString());
         assertTrue(filteredOrders.isEmpty());
     }
 
@@ -177,7 +177,7 @@ class ServiceSalesOrderServiceImplTest {
         order2.setStatus(OrderStatus.IN_PROGRESS);
         List<ServiceOrder> orders = List.of(order1, order2);
 
-        List<ServiceOrder> filteredOrders = ServiceOrderServiceImpl.filterOrdersByString(orders, "test");
+        List<ServiceOrder> filteredOrders = MyOrderService.filterOrdersByString(orders, "test");
         assertEquals(1, filteredOrders.size());
         assertEquals(order1, filteredOrders.get(0));
 

@@ -45,4 +45,6 @@ public interface UserAuthService {
      */
 
     Optional<User> getByUsername(String username);
+    Optional<User> getByUsernameAndPassword(String username, String password);
+
 }

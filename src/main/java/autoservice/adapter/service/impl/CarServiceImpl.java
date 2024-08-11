@@ -1,6 +1,7 @@
 package autoservice.adapter.service.impl;
 
 import autoservice.adapter.repository.CarRepository;
+import autoservice.adapter.repository.impl.CarRepositoryImpl;
 import autoservice.adapter.service.CarService;
 import autoservice.model.Car;
 import autoservice.model.CarState;
@@ -26,6 +27,7 @@ public class CarServiceImpl implements CarService {
     public CarServiceImpl(CarRepository carRepo) {
         this.carRepo = carRepo;
     }
+
 
     /**
      * Filters a list of cars by a specified search string.
@@ -89,7 +91,7 @@ public class CarServiceImpl implements CarService {
      */
     @Override
     public Optional<Car> getById(int id) {
-        return carRepo.findByFilter(car -> car.getId() == id).findFirst();
+        return carRepo.findById(id);
     }
 
     /**
@@ -113,16 +115,30 @@ public class CarServiceImpl implements CarService {
         return carRepo.findByFilter(predicate).toList();
     }
 
+    @Override
+    public void editCar(Car car) {
+        carRepo.update(car);
+    }
+
+    @Override
+    public void changeStatus(Car car, User user, CarState newState) {
+        if (user.getRole() == Role.CLIENT) return;
+        car.setState(newState);
+        carRepo.update(car);
+    }
+
     /**
      * Marks a car as "For Sale" if the user is not a client.
      *
      * @param car  the car to mark
      * @param user the user attempting to mark the car
      */
+    @Deprecated
     @Override
     public void markForSale(Car car, User user) {
         if (user.getRole() == Role.CLIENT) return;
         car.setState(CarState.FOR_SALE);
+        carRepo.update(car);
     }
 
     /**
@@ -131,10 +147,12 @@ public class CarServiceImpl implements CarService {
      * @param car  the car to mark
      * @param user the user attempting to mark the car
      */
+    @Deprecated
     @Override
     public void markForSold(Car car, User user) {
         if (user.getRole() == Role.CLIENT) return;
         car.setState(CarState.SOLD);
+        carRepo.update(car);
     }
 
     /**
@@ -143,10 +161,12 @@ public class CarServiceImpl implements CarService {
      * @param car  the car to mark
      * @param user the user attempting to mark the car
      */
+    @Deprecated
     @Override
     public void markForNotSale(Car car, User user) {
         if (user.getRole() == Role.CLIENT) return;
         car.setState(CarState.NOT_SALE);
+        carRepo.update(car);
     }
 
     /**
@@ -155,9 +175,11 @@ public class CarServiceImpl implements CarService {
      * @param car  the car to mark
      * @param user the user attempting to mark the car
      */
+    @Deprecated
     @Override
     public void markForService(Car car, User user) {
         if (user.getRole() == Role.CLIENT) return;
         car.setState(CarState.FOR_SERVICE);
+        carRepo.update(car);
     }
 }

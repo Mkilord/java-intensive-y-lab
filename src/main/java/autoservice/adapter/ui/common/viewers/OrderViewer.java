@@ -1,21 +1,22 @@
 package autoservice.adapter.ui.common.viewers;
 
+import autoservice.adapter.service.MyOrderService;
 import autoservice.model.Order;
 
 import java.util.List;
 
 public interface OrderViewer {
-    void showOrders(List<Order> orders);
+    <T extends Order> void showOrders(List<T> orders, MyOrderService<T>orderService);
 
-    void selectOrder(List<Order> orders);
+    <T extends Order> void selectOrder(List<T> orders, MyOrderService<T> orderService);
 
-    void showOrdersMenu(List<Order> orders);
+    <T extends Order> void showOrdersMenu(List<T> orders,MyOrderService<T> orderService);
 
-    void showCancelOrder(Order order);
+    <T extends Order> void showCancelOrder(T order, MyOrderService<T> orderService);
 
-    void showOrderOptions(Order order);
+    <T extends Order> void showOrderOptions(T order, MyOrderService<T> orderService);
 
-    void showOrderSortMenu(List<Order> orders);
+    <T extends Order> void showOrderSortMenu(List<T> orders);
 
-    void showOrderSearch(List<Order> orders);
+    <T extends Order> void showOrderSearch(List<T> orders);
 }
