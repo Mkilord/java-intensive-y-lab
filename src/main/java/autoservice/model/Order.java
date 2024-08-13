@@ -1,37 +1,36 @@
 package autoservice.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 
 import java.time.LocalDate;
 
-@EqualsAndHashCode
-@ToString(includeFieldNames = false)
-@Getter
-public abstract class Order implements View {
-    @Setter
-    protected int id;
-    protected final User customer;
-    protected final Car car;
-    @Setter
-    protected LocalDate date;
-    @Setter
-    protected OrderStatus status = OrderStatus.IN_PROGRESS;
+import static autoservice.model.OrderStatus.IN_PROGRESS;
 
-    public Order(int id, User customer, Car car, OrderStatus status, LocalDate date) {
-        this.id = id;
-        this.customer = customer;
-        this.car = car;
-        this.status = status;
-        this.date = date;
+@Data
+@FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
+@AllArgsConstructor()
+public abstract class Order implements View {
+    @NonFinal
+    int id;
+    LocalDate date;
+    @NonFinal
+    OrderStatus status;
+    User customer;
+    Car car;
+
+    public Order(LocalDate date, OrderStatus status, User customer, Car car) {
+        this(0, date, status, customer, car);
+    }
+
+    public Order(OrderStatus status, User customer, Car car) {
+        this(LocalDate.now(), status, customer, car);
     }
 
     public Order(User customer, Car car) {
-        this.date = LocalDate.now();
-        this.car = car;
-        this.customer = customer;
+        this(IN_PROGRESS, customer, car);
     }
-
 }

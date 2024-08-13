@@ -1,43 +1,31 @@
 package autoservice.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
-@Getter
-@ToString(includeFieldNames = false)
-@EqualsAndHashCode
-
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class User implements View {
-    @Setter
-    private int id;
-    @Setter
-    private Role role;
-    private final String username;
-    @Setter
-    private String password;
-    @Setter
-    private String name;
-    @Setter
-    private String surname;
-    @Setter
-    private String phone;
+
+    int id;
+    Role role;
+    String username;
+    String password;
+    String name;
+    String surname;
+    String phone;
 
     public User(Role role, String username, String password) {
-        this.role = role;
-        this.username = username;
-        this.password = password;
+        this(0, role, username, password, null, null, null);
     }
 
-    public User(int id, Role role, String username, String password, String name, String surname, String phone) {
-        this.id = id;
-        this.role = role;
-        this.username = username;
-        this.password = password;
-        this.name = name;
-        this.surname = surname;
-        this.phone = phone;
+    public User(Role role, String username, String password, String name, String surname, String phone) {
+        this(0, role, username, password, name, surname, phone);
     }
 
     @Override
@@ -45,5 +33,4 @@ public class User implements View {
         return String.format("Id: %d,Username: %s; Name: %s; Surname: %s; Phone: %s;", id,
                 username, name, surname, phone);
     }
-
 }

@@ -5,12 +5,21 @@ import java.util.Date;
 import java.util.Locale;
 
 public class SalesOrder extends Order {
-    public SalesOrder(User customer, Car car) {
-        super(customer, car);
+
+    public SalesOrder(int id, LocalDate date, OrderStatus status, User customer, Car car) {
+        super(id, date, status, customer, car);
     }
 
-    public SalesOrder(int id, User customer, Car car, OrderStatus status, LocalDate date) {
-        super(id, customer, car, status, date);
+    public SalesOrder(LocalDate date, OrderStatus status, User customer, Car car) {
+        super(date, status, customer, car);
+    }
+
+    public SalesOrder(OrderStatus status, User customer, Car car) {
+        super(status, customer, car);
+    }
+
+    public SalesOrder(User customer, Car car) {
+        super(customer, car);
     }
 
     @Override

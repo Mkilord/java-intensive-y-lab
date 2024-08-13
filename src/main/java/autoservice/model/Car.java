@@ -1,36 +1,28 @@
 package autoservice.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
-@ToString
-@EqualsAndHashCode
-@Getter
-@Setter
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@AllArgsConstructor()
 public class Car implements View {
-    private int id;
-    private String make;
-    private String model;
-    private int year;
-    private long price;
-    private CarState state = CarState.FOR_SALE;
 
-    public Car(String make, String model, int year, long price) {
-        this.make = make;
-        this.model = model;
-        this.year = year;
-        this.price = price;
+    int id;
+    CarState state;
+    String make;
+    String model;
+    int year;
+    long price;
+
+    public Car(CarState state, String make, String model, int year, long price) {
+        this(0, state, make, model, year, price);
     }
 
-    public Car(int id, String make, String model, int year, long price, CarState state) {
-        this.id = id;
-        this.make = make;
-        this.model = model;
-        this.year = year;
-        this.price = price;
-        this.state = state;
+    public Car(String make, String model, int year, long price) {
+        this(CarState.FOR_SALE, make, model, year, price);
     }
 
     @Override
