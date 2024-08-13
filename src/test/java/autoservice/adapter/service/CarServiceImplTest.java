@@ -3,7 +3,6 @@ package autoservice.adapter.service;
 import autoservice.adapter.repository.CarRepository;
 import autoservice.adapter.service.impl.CarServiceImpl;
 import autoservice.model.Car;
-import autoservice.model.CarState;
 import autoservice.model.Role;
 import autoservice.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +12,9 @@ import org.mockito.Mockito;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
+import static autoservice.model.CarState.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,7 +33,7 @@ class CarServiceImplTest {
 
     @Test
     void testAddCar() {
-        Car car = new Car("Toyota", "Corolla", 2020, 20000);
+        var car = new Car(FOR_SALE,"Toyota", "Corolla", 2020, 20000);
         when(carRepo.create(any(Car.class))).thenReturn(true);
 
         boolean result = carService.add(car);
@@ -42,7 +43,7 @@ class CarServiceImplTest {
 
     @Test
     void testDeleteCar() {
-        Car car = new Car("Toyota", "Corolla", 2020, 20000);
+        var car = new Car(FOR_SALE,"Toyota", "Corolla", 2020, 20000);
         when(carRepo.delete(any(Car.class))).thenReturn(true);
 
         boolean result = carService.delete(car);
@@ -52,96 +53,96 @@ class CarServiceImplTest {
 
     @Test
     void testGetCarByFilter() {
-        Car car = new Car("Toyota", "Corolla", 2020, 20000);
-        when(carRepo.findByFilter(any(Predicate.class))).thenReturn(List.of(car).stream());
+        var car = new Car(FOR_SALE,"Toyota", "Corolla", 2020, 20000);
 
-        Optional<Car> result = carService.getCarByFilter(c -> c.getMake().equals("Toyota"));
+        when(carRepo.findByFilter(any(Predicate.class))).thenReturn(Stream.of(car));
 
-        assertTrue(result.isPresent(), "Car should be found by filter");
-        assertEquals("Toyota", result.get().getMake(), "Car make should match the filter");
+        var resultOpt = carService.getCarByFilter(c -> c.getMake().equals("Toyota"));
+        assertTrue(resultOpt.isPresent(), "Car should be found by filter");
+        assertEquals("Toyota", resultOpt.get().getMake(), "Car make should match the filter");
     }
 
     @Test
     void testGetById() {
-        Car car = new Car("Toyota", "Corolla", 2020, 20000);
-        when(carRepo.findByFilter(any(Predicate.class))).thenReturn(List.of(car).stream());
+        var car = new Car(0,FOR_SALE,"Toyota", "Corolla", 2020, 20000);
 
-        Optional<Car> result = carService.getById(car.getId());
+        when(carRepo.findById(car.getId())).thenReturn(Optional.of(car));
 
-        assertTrue(result.isPresent(), "Car should be found by ID");
-        assertEquals(car.getId(), result.get().getId(), "Car ID should match");
+        var resultOpt = carService.getById(car.getId());
+        assertTrue(resultOpt.isPresent(), "Car should be found by ID");
+        assertEquals(car.getId(), resultOpt.get().getId(), "Car ID should match");
     }
 
     @Test
     void testGetAllCar() {
-        Car car = new Car("Toyota", "Corolla", 2020, 20000);
+        var car = new Car(FOR_SALE,"Toyota", "Corolla", 2020, 20000);
         when(carRepo.findAll()).thenReturn(List.of(car));
 
-        List<Car> result = carService.getAllCar();
+        var resultOpt = carService.getAllCar();
 
-        assertEquals(1, result.size(), "There should be 1 car in the list");
-        assertEquals(car, result.get(0), "Car in the list should match the expected car");
+        assertEquals(1, resultOpt.size(), "There should be 1 car in the list");
+        assertEquals(car, resultOpt.get(0), "Car in the list should match the expected car");
     }
 
     @Test
     void testGetCarsByFilter() {
-        Car car = new Car("Toyota", "Corolla", 2020, 20000);
-        when(carRepo.findByFilter(any(Predicate.class))).thenReturn(List.of(car).stream());
+        var car = new Car(FOR_SALE,"Toyota", "Corolla", 2020, 20000);
 
-        List<Car> result = carService.getCarsByFilter(c -> c.getMake().equals("Toyota"));
+        when(carRepo.findByFilter(any(Predicate.class))).thenReturn(Stream.of(car));
 
-        assertEquals(1, result.size(), "There should be 1 car in the filtered list");
-        assertEquals(car, result.get(0), "Car in the filtered list should match the expected car");
+        var resultOpt = carService.getCarsByFilter(c -> c.getMake().equals("Toyota"));
+        assertEquals(1, resultOpt.size(), "There should be 1 car in the filtered list");
+        assertEquals(car, resultOpt.get(0), "Car in the filtered list should match the expected car");
     }
 
     @Test
     void testMarkForSale() {
-        Car car = new Car("Toyota", "Corolla", 2020, 20000);
-        User user = new User(Role.MANAGER, "manager", "password");
+        var car = new Car(FOR_SALE,"Toyota", "Corolla", 2020, 20000);
+        var user = new User(Role.MANAGER, "manager", "password");
 
-        carService.changeStatus(car, user, CarState.FOR_SALE);
+        carService.changeStatus(car, user, FOR_SALE);
 
-        assertEquals(CarState.FOR_SALE, car.getState(), "Car should be marked as FOR_SALE");
+        assertEquals(FOR_SALE, car.getState(), "Car should be marked as FOR_SALE");
     }
 
     @Test
     void testMarkForSold() {
-        Car car = new Car("Toyota", "Corolla", 2020, 20000);
-        User user = new User(Role.MANAGER, "manager", "password");
+        var car = new Car(FOR_SALE,"Toyota", "Corolla", 2020, 20000);
+        var user = new User(Role.MANAGER, "manager", "password");
 
-        carService.changeStatus(car, user, CarState.SOLD);
+        carService.changeStatus(car, user, SOLD);
 
-        assertEquals(CarState.SOLD, car.getState(), "Car should be marked as SOLD");
+        assertEquals(SOLD, car.getState(), "Car should be marked as SOLD");
     }
 
     @Test
     void testMarkForNotSale() {
-        Car car = new Car("Toyota", "Corolla", 2020, 20000);
-        User user = new User(Role.MANAGER, "manager", "password");
+        var car = new Car(FOR_SALE,"Toyota", "Corolla", 2020, 20000);
+        var user = new User(Role.MANAGER, "manager", "password");
 
-        carService.changeStatus(car, user, CarState.NOT_SALE);
+        carService.changeStatus(car, user, NOT_SALE);
 
-        assertEquals(CarState.NOT_SALE, car.getState(), "Car should be marked as NOT_SALE");
+        assertEquals(NOT_SALE, car.getState(), "Car should be marked as NOT_SALE");
     }
 
     @Test
     void testMarkForService() {
-        Car car = new Car("Toyota", "Corolla", 2020, 20000);
-        User user = new User(Role.MANAGER, "manager", "password");
+        var car = new Car(FOR_SALE,"Toyota", "Corolla", 2020, 20000);
+        var user = new User(Role.MANAGER, "manager", "password");
 
-        carService.changeStatus(car, user, CarState.FOR_SERVICE);
+        carService.changeStatus(car, user, FOR_SERVICE);
 
-        assertEquals(CarState.FOR_SERVICE, car.getState(), "Car should be marked as FOR_SERVICE");
+        assertEquals(FOR_SERVICE, car.getState(), "Car should be marked as FOR_SERVICE");
     }
 
     @Test
     void testFilterCarsByString() {
-        Car car = new Car("Toyota", "Corolla", 2020, 20000);
-        List<Car> cars = List.of(car);
+        var car = new Car(FOR_SALE,"Toyota", "Corolla", 2020, 20000);
+        var cars = List.of(car);
 
-        List<Car> result = CarServiceImpl.filterCarsByString(cars, "Toyota");
+        var resultCars = CarServiceImpl.filterCarsByString(cars, "Toyota");
 
-        assertEquals(1, result.size(), "There should be 1 car matching the filter");
-        assertEquals(car, result.get(0), "Car should match the filter criteria");
+        assertEquals(1, resultCars.size(), "There should be 1 car matching the filter");
+        assertEquals(car, resultCars.get(0), "Car should match the filter criteria");
     }
 }

@@ -101,115 +101,100 @@ public class OrderRepositoryImplTest {
 
     @Test
     public void testCreateOrder() {
-        User customer = new User(Role.CLIENT, "user6", "pass");
-        customer.setName("test");
-        customer.setSurname("test2");
-        customer.setPhone("34939483");
+        var customer = new User(Role.CLIENT, "user6", "pass",
+                "test", "test2", "34939483");
 
         boolean userCreated = userRepository.create(customer);
         assertTrue(userCreated, "User should be created");
 
         assertNotEquals(0, customer.getId(), "User ID should be generated");
 
-        Car car = new Car("Toyota", "Camry", 2020, 30000);
-        car.setState(CarState.FOR_SALE);
+        var car = new Car("Toyota", "Camry", 2020, 30000);
 
         boolean carCreated = carRepository.create(car);
         assertTrue(carCreated, "Car should be created");
 
-        SalesOrder order = new SalesOrder(0, customer, car, OrderStatus.IN_PROGRESS, LocalDate.now());
+        SalesOrder order = new SalesOrder(LocalDate.now(), OrderStatus.IN_PROGRESS, customer, car);
         boolean orderCreated = orderRepository.create(order);
         assertTrue(orderCreated, "Order should be created");
 
-        var fetchedOrder = orderRepository.findById(order.getId());
-        assertTrue(fetchedOrder.isPresent(), "Order should be found");
-        assertEquals(customer.getId(), fetchedOrder.get().getCustomer().getId(), "Customer ID should match");
-        assertEquals(car.getId(), fetchedOrder.get().getCar().getId(), "Car ID should match");
-        assertEquals(order.getStatus(), fetchedOrder.get().getStatus(), "Order status should match");
-        assertEquals(order.getDate(), fetchedOrder.get().getDate(), "Order date should match");
+        var fetchedOrderOpt = orderRepository.findById(order.getId());
+        assertTrue(fetchedOrderOpt.isPresent(), "Order should be found");
+        assertEquals(customer.getId(), fetchedOrderOpt.get().getCustomer().getId(), "Customer ID should match");
+        assertEquals(car.getId(), fetchedOrderOpt.get().getCar().getId(), "Car ID should match");
+        assertEquals(order.getStatus(), fetchedOrderOpt.get().getStatus(), "Order status should match");
+        assertEquals(order.getDate(), fetchedOrderOpt.get().getDate(), "Order date should match");
     }
 
     @Test
     public void testDeleteOrder() {
-        User customer = new User(Role.CLIENT, "user2", "pass");
-        customer.setName("test");
-        customer.setSurname("test2");
-        customer.setPhone("34939483");
+        User customer = new User(Role.CLIENT, "user2", "pass",
+                "test", "test2", "34939483");
 
         boolean userCreated = userRepository.create(customer);
         assertTrue(userCreated, "User should be created");
 
-        Car car = new Car("Toyota", "Camry", 2020, 30000);
-        car.setState(CarState.FOR_SALE);
+        var car = new Car("Toyota", "Camry", 2020, 30000);
 
         boolean carCreated = carRepository.create(car);
         assertTrue(carCreated, "Car should be created");
 
-        SalesOrder order = new SalesOrder(0, customer, car, OrderStatus.IN_PROGRESS, LocalDate.now());
+        var order = new SalesOrder(customer, car);
         boolean orderCreated = orderRepository.create(order);
         assertTrue(orderCreated, "Order should be created");
 
         boolean orderDeleted = orderRepository.delete(order);
         assertTrue(orderDeleted, "Order should be deleted");
 
-        var fetchedOrder = orderRepository.findById(order.getId());
-        assertFalse(fetchedOrder.isPresent(), "Order should not be found after deletion");
+        var fetchedOrderOpt = orderRepository.findById(order.getId());
+        assertFalse(fetchedOrderOpt.isPresent(), "Order should not be found after deletion");
     }
 
     @Test
     public void testUpdateOrder() {
-        User customer = new User(Role.CLIENT, "user3", "pass");
-        customer.setName("test");
-        customer.setSurname("test2");
-        customer.setPhone("34939483");
+        User customer = new User(Role.CLIENT, "user3", "pass", "" +
+                "test", "test2", "34939483");
 
         boolean userCreated = userRepository.create(customer);
         assertTrue(userCreated, "User should be created");
 
-        Car car = new Car("Toyota", "Camry", 2020, 30000);
-        car.setState(CarState.FOR_SALE);
+        var car = new Car("Toyota", "Camry", 2020, 30000);
 
         boolean carCreated = carRepository.create(car);
         assertTrue(carCreated, "Car should be created");
 
-        SalesOrder order = new SalesOrder(0, customer, car, OrderStatus.IN_PROGRESS, LocalDate.now());
+        var order = new SalesOrder(LocalDate.now().plusDays(1), OrderStatus.COMPLETE, customer, car);
         boolean orderCreated = orderRepository.create(order);
         assertTrue(orderCreated, "Order should be created");
 
-        order.setStatus(OrderStatus.COMPLETE);
-        order.setDate(LocalDate.now().plusDays(1));
         orderRepository.update(order);
-
-        var fetchedOrder = orderRepository.findById(order.getId());
-        assertTrue(fetchedOrder.isPresent(), "Order should be found");
-        assertEquals(OrderStatus.COMPLETE, fetchedOrder.get().getStatus(), "Order status should match after update");
-        assertEquals(LocalDate.now().plusDays(1), fetchedOrder.get().getDate(), "Order date should match after update");
+        var fetchedOrderOpt = orderRepository.findById(order.getId());
+        assertTrue(fetchedOrderOpt.isPresent(), "Order should be found");
+        assertEquals(OrderStatus.COMPLETE, fetchedOrderOpt.get().getStatus(), "Order status should match after update");
+        assertEquals(LocalDate.now().plusDays(1), fetchedOrderOpt.get().getDate(), "Order date should match after update");
     }
 
     @Test
     public void testFindById() {
-        User customer = new User(Role.CLIENT, "user7", "pass");
-        customer.setName("test");
-        customer.setSurname("test2");
-        customer.setPhone("34939483");
+        var customer = new User(Role.CLIENT, "user7", "pass",
+                "test", "test2", "34939483");
 
         boolean userCreated = userRepository.create(customer);
         assertTrue(userCreated, "User should be created");
 
-        Car car = new Car("Toyota", "Camry", 2020, 30000);
-        car.setState(CarState.FOR_SALE);
+        var car = new Car("Toyota", "Camry", 2020, 30000);
 
         boolean carCreated = carRepository.create(car);
         assertTrue(carCreated, "Car should be created");
 
-        SalesOrder order = new SalesOrder(0, customer, car, OrderStatus.IN_PROGRESS, LocalDate.now());
+        var order = new SalesOrder(customer, car);
         boolean orderCreated = orderRepository.create(order);
         assertTrue(orderCreated, "Order should be created");
 
-        var fetchedOrder = orderRepository.findById(order.getId());
-        assertTrue(fetchedOrder.isPresent(), "Order should be found");
-        assertEquals(customer.getId(), fetchedOrder.get().getCustomer().getId(), "Customer ID should match");
-        assertEquals(car.getId(), fetchedOrder.get().getCar().getId(), "Car ID should match");
+        var fetchedOrderOpt = orderRepository.findById(order.getId());
+        assertTrue(fetchedOrderOpt.isPresent(), "Order should be found");
+        assertEquals(customer.getId(), fetchedOrderOpt.get().getCustomer().getId(), "Customer ID should match");
+        assertEquals(car.getId(), fetchedOrderOpt.get().getCar().getId(), "Car ID should match");
     }
 
     @AfterAll
