@@ -11,7 +11,6 @@ import autoservice.model.SalesOrder;
 import autoservice.model.User;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -96,7 +95,7 @@ public class OrderRepositoryImpl implements OrderRepository {
             statement.setString(4, order.getStatus().name());
             statement.setInt(5, order.getId());
 
-            int rowsAffected = statement.executeUpdate();
+            statement.executeUpdate();
         } catch (SQLException e) {
             CRUDRepository.getSQLError(e);
         }
@@ -114,12 +113,12 @@ public class OrderRepositoryImpl implements OrderRepository {
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    int orderId = resultSet.getInt("id");
-                    int customerId = resultSet.getInt("customer_id");
-                    int carId = resultSet.getInt("car_id");
-                    LocalDate date = resultSet.getDate("date").toLocalDate();
-                    String statusStr = resultSet.getString("status");
-                    OrderStatus status = OrderStatus.valueOf(statusStr);
+                    var orderId = resultSet.getInt("id");
+                    var customerId = resultSet.getInt("customer_id");
+                    var carId = resultSet.getInt("car_id");
+                    var date = resultSet.getDate("date").toLocalDate();
+                    var statusStr = resultSet.getString("status");
+                    var status = OrderStatus.valueOf(statusStr);
 
                     var userOpt = getUserById(customerId);
                     if (userOpt.isEmpty()) return Optional.empty();
@@ -127,7 +126,7 @@ public class OrderRepositoryImpl implements OrderRepository {
                     var carOpt = getCarById(carId);
                     if (carOpt.isEmpty()) return Optional.empty();
 
-                    SalesOrder order = new SalesOrder(orderId, userOpt.get(), carOpt.get(), status, date);
+                    var order = new SalesOrder(orderId, date, status, userOpt.get(), carOpt.get());
                     return Optional.of(order);
                 }
             }
@@ -160,20 +159,20 @@ public class OrderRepositoryImpl implements OrderRepository {
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
-                int orderId = resultSet.getInt("id");
-                int customerId = resultSet.getInt("customer_id");
-                int carId = resultSet.getInt("car_id");
-                LocalDate date = resultSet.getDate("date").toLocalDate();
-                String statusStr = resultSet.getString("status");
+                var orderId = resultSet.getInt("id");
+                var customerId = resultSet.getInt("customer_id");
+                var carId = resultSet.getInt("car_id");
+                var date = resultSet.getDate("date").toLocalDate();
+                var statusStr = resultSet.getString("status");
                 OrderStatus status = OrderStatus.valueOf(statusStr);
 
-                Optional<User> userOpt = getUserById(customerId);
+                var userOpt = getUserById(customerId);
                 if (userOpt.isEmpty()) continue;
 
-                Optional<Car> carOpt = getCarById(carId);
+                var carOpt = getCarById(carId);
                 if (carOpt.isEmpty()) continue;
 
-                SalesOrder order = new SalesOrder(orderId, userOpt.get(), carOpt.get(), status, date);
+                var order = new SalesOrder(orderId, date, status, userOpt.get(), carOpt.get());
                 salesOrders.add(order);
             }
         } catch (SQLException e) {

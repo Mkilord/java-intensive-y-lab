@@ -45,7 +45,6 @@ public class CarRepositoryImpl implements CarRepository {
                 try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         car.setId(generatedKeys.getInt(1));
-                        System.out.println("Create car successful!");
                         return true;
                     }
                 }
@@ -54,11 +53,6 @@ public class CarRepositoryImpl implements CarRepository {
             getSQLError(e);
         }
         return false;
-    }
-
-    public static void main(String[] args) {
-        CarRepository carRepository = new CarRepositoryImpl();
-        carRepository.findAll().forEach(System.out::println);
     }
 
 
@@ -77,13 +71,7 @@ public class CarRepositoryImpl implements CarRepository {
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, car.getId());
             int rowsAffected = statement.executeUpdate();
-            var isOk = rowsAffected > 0;
-            if (isOk) {
-                System.out.println("Car deleted successful!");
-                return true;
-            }
-            System.out.println("Car isn't deleted!");
-            return false;
+            return rowsAffected > 0;
         } catch (SQLException e) {
             getSQLError(e);
             return false;
@@ -133,7 +121,7 @@ public class CarRepositoryImpl implements CarRepository {
                     var year = resultSet.getInt("year");
                     var price = resultSet.getLong("price");
                     var state = CarState.valueOf(resultSet.getString("state"));
-                    return Optional.of(new Car(tempId, make, model, year, price, state));
+                    return Optional.of(new Car(tempId, state, make, model, year, price));
                 }
             }
         } catch (SQLException e) {
@@ -163,7 +151,7 @@ public class CarRepositoryImpl implements CarRepository {
                 var year = resultSet.getInt("year");
                 var price = resultSet.getLong("price");
                 var state = CarState.valueOf(resultSet.getString("state"));
-                Car car = new Car(id, make, model, year, price, state);
+                Car car = new Car(id, state, make, model, year, price);
                 cars.add(car);
             }
         } catch (SQLException e) {

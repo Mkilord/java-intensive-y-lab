@@ -11,7 +11,6 @@ import autoservice.model.ServiceOrder;
 import autoservice.model.User;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -105,7 +104,7 @@ public class ServiceOrderRepositoryImpl implements ServiceOrderRepository {
             statement.setString(4, object.getStatus().name());
             statement.setInt(5, object.getId());
 
-            int rowsAffected = statement.executeUpdate();
+            statement.executeUpdate();
         } catch (SQLException e) {
             CRUDRepository.getSQLError(e);
         }
@@ -123,20 +122,20 @@ public class ServiceOrderRepositoryImpl implements ServiceOrderRepository {
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    int serviceOrderId = resultSet.getInt("id");
-                    int customerId = resultSet.getInt("customer_id");
-                    int carId = resultSet.getInt("car_id");
-                    LocalDate date = resultSet.getDate("date").toLocalDate();
-                    String statusStr = resultSet.getString("status");
-                    OrderStatus status = OrderStatus.valueOf(statusStr);
+                    var serviceOrderId = resultSet.getInt("id");
+                    var customerId = resultSet.getInt("customer_id");
+                    var carId = resultSet.getInt("car_id");
+                    var date = resultSet.getDate("date").toLocalDate();
+                    var statusStr = resultSet.getString("status");
+                    var status = OrderStatus.valueOf(statusStr);
 
-                    Optional<User> userOpt = getUserById(customerId);
+                    var userOpt = getUserById(customerId);
                     if (userOpt.isEmpty()) return Optional.empty();
 
-                    Optional<Car> carOpt = getCarById(carId);
+                    var carOpt = getCarById(carId);
                     if (carOpt.isEmpty()) return Optional.empty();
 
-                    ServiceOrder serviceOrder = new ServiceOrder(serviceOrderId, userOpt.get(), carOpt.get(), status, date);
+                    var serviceOrder = new ServiceOrder(serviceOrderId, date, status, userOpt.get(), carOpt.get());
                     return Optional.of(serviceOrder);
                 }
             }
@@ -170,20 +169,20 @@ public class ServiceOrderRepositoryImpl implements ServiceOrderRepository {
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
-                int serviceOrderId = resultSet.getInt("id");
-                int customerId = resultSet.getInt("customer_id");
-                int carId = resultSet.getInt("car_id");
-                LocalDate date = resultSet.getDate("date").toLocalDate();
-                String statusStr = resultSet.getString("status");
-                OrderStatus status = OrderStatus.valueOf(statusStr);
+                var serviceOrderId = resultSet.getInt("id");
+                var customerId = resultSet.getInt("customer_id");
+                var carId = resultSet.getInt("car_id");
+                var date = resultSet.getDate("date").toLocalDate();
+                var statusStr = resultSet.getString("status");
+                var status = OrderStatus.valueOf(statusStr);
 
-                Optional<User> userOpt = getUserById(customerId);
+                var userOpt = getUserById(customerId);
                 if (userOpt.isEmpty()) continue;
 
-                Optional<Car> carOpt = getCarById(carId);
+                var carOpt = getCarById(carId);
                 if (carOpt.isEmpty()) continue;
 
-                ServiceOrder serviceOrder = new ServiceOrder(serviceOrderId, userOpt.get(), carOpt.get(), status, date);
+                var serviceOrder = new ServiceOrder(serviceOrderId, date, status, userOpt.get(), carOpt.get());
                 serviceOrders.add(serviceOrder);
             }
         } catch (SQLException e) {
