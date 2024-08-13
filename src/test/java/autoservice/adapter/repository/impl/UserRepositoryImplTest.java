@@ -1,6 +1,7 @@
-package autoservice.adapter.repository;
+package autoservice.adapter.repository.impl;
 
 import autoservice.adapter.config.DatabaseManager;
+import autoservice.adapter.repository.UserRepository;
 import autoservice.adapter.repository.impl.UserRepositoryImpl;
 import autoservice.model.Role;
 import autoservice.model.User;

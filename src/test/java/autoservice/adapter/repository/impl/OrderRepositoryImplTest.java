@@ -1,6 +1,8 @@
-package autoservice.adapter.repository;
+package autoservice.adapter.repository.impl;
 
 import autoservice.adapter.config.DatabaseManager;
+import autoservice.adapter.repository.CarRepository;
+import autoservice.adapter.repository.UserRepository;
 import autoservice.adapter.repository.impl.CarRepositoryImpl;
 import autoservice.adapter.repository.impl.OrderRepositoryImpl;
 import autoservice.adapter.repository.impl.UserRepositoryImpl;
