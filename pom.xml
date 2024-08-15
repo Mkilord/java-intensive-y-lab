@@ -28,7 +28,15 @@
         </developer>
     </developers>
 
+    <packaging>war</packaging>
+
     <dependencies>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- Mockito -->
         <dependency>
             <groupId>org.mockito</groupId>
