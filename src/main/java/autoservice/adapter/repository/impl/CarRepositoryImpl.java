@@ -91,13 +91,7 @@ public class CarRepositoryImpl implements CarRepository {
             statement.setLong(4, car.getPrice());
             statement.setString(5, car.getState().name());
             statement.setLong(6, car.getId());
-            int rowsAffected = statement.executeUpdate();
-            var isOk = rowsAffected > 0;
-            if (isOk) {
-                System.out.println("Car update successful!");
-                return;
-            }
-            System.out.println("Car isn't update!");
+            statement.executeUpdate();
 
         } catch (SQLException e) {
             getSQLError(e);

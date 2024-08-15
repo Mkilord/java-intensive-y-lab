@@ -73,13 +73,7 @@ public class UserRepositoryImpl implements UserRepository {
             statement.setLong(1, user.getId());
 
             int rowsAffected = statement.executeUpdate();
-            var isOk = rowsAffected > 0;
-            if (isOk) {
-                System.out.println("User delete successful!");
-                return true;
-            }
-            System.out.println("User isn't delete!");
-            return false;
+            return rowsAffected > 0;
         } catch (SQLException e) {
             CRUDRepository.getSQLError(e);
             return false;
@@ -100,13 +94,7 @@ public class UserRepositoryImpl implements UserRepository {
             statement.setString(5, user.getPhone());
             statement.setString(6, user.getRole().name());
             statement.setInt(7, user.getId());
-            int rowsAffected = statement.executeUpdate();
-            var isOk = rowsAffected > 0;
-            if (isOk) {
-                System.out.println("User update successful!");
-                return;
-            }
-            System.out.println("User isn't update!");
+            statement.executeUpdate();
         } catch (SQLException e) {
             CRUDRepository.getSQLError(e);
         }
