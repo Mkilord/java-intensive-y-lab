@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="002_initial_data_users_table" author="Mkilord">
+    <changeSet id="100_initial_data_users_table" author="Mkilord">
         <insert tableName="user" schemaName="car_service">
             <column name="role" value="CLIENT"/>
             <column name="username" value="client1"/>
@@ -40,7 +40,7 @@
         </insert>
     </changeSet>
 
-    <changeSet id="002_initial_data_car_table" author="Mkilord">
+    <changeSet id="101_initial_data_car_table" author="Mkilord">
         <insert tableName="car" schemaName="car_service">
             <column name="make" value="Toyota"/>
             <column name="model" value="Camry"/>
@@ -71,7 +71,7 @@
         </insert>
     </changeSet>
 
-    <changeSet id="002_initial_data_sales_order_table" author="Mkilord">
+    <changeSet id="102_initial_data_sales_order_table" author="Mkilord">
         <insert tableName="sales_order" schemaName="car_service">
             <column name="customer_id" value="1"/>
             <column name="car_id" value="1"/>
@@ -98,7 +98,7 @@
         </insert>
     </changeSet>
 
-    <changeSet id="002_initial_data_service_order_table" author="Mkilord">
+    <changeSet id="103_initial_data_service_order_table" author="Mkilord">
         <insert tableName="service_order" schemaName="car_service">
             <column name="customer_id" value="1"/>
             <column name="car_id" value="1"/>

@@ -102,8 +102,9 @@
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>${liquibase.plugin.version}</version>
                 <configuration>
-                    <propertyFile>src/main/resources/database.properties</propertyFile>
-                    <changeLogFile>src/main/resources/db/changelog/changelog-master.xml</changeLogFile>
+                    <searchPath>src/main/resources/db/changelog</searchPath>
+                    <propertyFile>../../database.properties</propertyFile>
+                    <changeLogFile>changelog-master.xml</changeLogFile>
                 </configuration>
                 <executions>
                     <execution>
@@ -111,16 +112,6 @@
                         <goals>
                             <goal>update</goal>
                         </goals>
-                    </execution>
-                    <execution>
-                        <id>rollback</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>rollback</goal>
-                        </goals>
-                        <configuration>
-                            <rollbackCount>1</rollbackCount>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
