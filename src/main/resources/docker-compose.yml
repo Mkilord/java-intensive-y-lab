@@ -8,7 +8,10 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    env_file:
-      - secrets.env
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: postgres
+      DB_URL: jdbc:postgresql://localhost:5432/postgres
 volumes:
   postgres_data:
