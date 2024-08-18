@@ -54,11 +54,22 @@ public class UserAuthServiceImpl implements UserAuthService {
      * @param password the password of the new user
      * @return an {@link Optional} containing the newly registered user if registration was successful, or an empty {@link Optional} if the username is already taken
      */
+    @Deprecated
     @Override
     public Optional<User> register(Role role, String username, String password) {
         var out = getByUsername(username);
         if (out.isEmpty()) {
             var user = new User(role, username, password);
+            authRepo.create(user);
+            return Optional.of(user);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<User> register(User user) {
+        var out = getByUsername(user.getUsername());
+        if (out.isEmpty()) {
             authRepo.create(user);
             return Optional.of(user);
         }

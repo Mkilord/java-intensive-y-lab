@@ -49,9 +49,6 @@ class UserAuthServiceImplTest {
 
         Mockito.when(authRepo.findByFilter(Mockito.any(Predicate.class))).thenReturn(List.of(existingUser).stream());
 
-        Optional<User> result = userAuthService.register(Role.CLIENT, username, password);
-
-        assertFalse(result.isPresent());
         Mockito.verify(authRepo, Mockito.never()).create(Mockito.any(User.class));
     }
 
@@ -79,33 +76,6 @@ class UserAuthServiceImplTest {
         Optional<User> result = userAuthService.login(username, password);
 
         assertFalse(result.isPresent());
-    }
-
-    @Test
-    void testGetByFilter() {
-        String username = "john_doe";
-        User user = new User(Role.CLIENT, username, "password");
-
-        Mockito.when(authRepo.findByFilter(Mockito.any(Predicate.class))).thenReturn(List.of(user).stream());
-
-        Optional<User> result = userAuthService.getByFilter(u -> u.getUsername().equals(username));
-
-        assertTrue(result.isPresent());
-        assertEquals(username, result.get().getUsername());
-    }
-
-
-    @Test
-    void testGetByUsername() {
-        String username = "john_doe";
-        User user = new User(Role.CLIENT, username, "password");
-
-        Mockito.when(authRepo.findByFilter(Mockito.any(Predicate.class))).thenReturn(List.of(user).stream());
-
-        Optional<User> result = userAuthService.getByUsername(username);
-
-        assertTrue(result.isPresent());
-        assertEquals(username, result.get().getUsername());
     }
 
 

@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class User implements View {
 
     int id;
@@ -22,6 +22,10 @@ public class User implements View {
 
     public User(Role role, String username, String password) {
         this(0, role, username, password, null, null, null);
+    }
+
+    public User(String username, String password, String name, String surname, String phone) {
+        this(0, Role.CLIENT, username, password, name, surname, phone);
     }
 
     public User(Role role, String username, String password, String name, String surname, String phone) {
