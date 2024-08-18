@@ -10,6 +10,9 @@ public class SalesOrder extends Order {
         super(id, date, status, customer, car);
     }
 
+    public SalesOrder() {
+    }
+
     public SalesOrder(LocalDate date, OrderStatus status, User customer, Car car) {
         super(date, status, customer, car);
     }

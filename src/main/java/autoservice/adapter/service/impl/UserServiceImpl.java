@@ -1,13 +1,16 @@
 package autoservice.adapter.service.impl;
 
 import autoservice.adapter.repository.UserRepository;
+import autoservice.adapter.service.RoleException;
 import autoservice.adapter.service.UserService;
+import autoservice.model.Role;
 import autoservice.model.User;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class UserServiceImpl implements UserService {
     private final UserRepository authRepo;
@@ -45,15 +48,34 @@ public class UserServiceImpl implements UserService {
      * @return a list of all users
      */
     @Override
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers(Role role) throws RoleException {
+        if (role.equals(Role.CLIENT)) throw new RoleException(RoleException.PERMISSION_ERROR_MSG);
+        if (role.equals(Role.MANAGER)) {
+            return authRepo.findByFilter(client -> client.getRole().equals(Role.CLIENT)).toList();
+        }
         return authRepo.findAll();
+    }
+
+    @Override
+    public Stream<User> getAllUsersStream(Role role) throws RoleException {
+        return getAllUsers(role).stream();
+    }
+
+    @Override
+    public Optional<User> getUserByID(Role role, int id) throws RoleException {
+        if (role.equals(Role.CLIENT)) throw new RoleException(RoleException.PERMISSION_ERROR_MSG);
+        if (role.equals(Role.MANAGER)) {
+            return authRepo.findByFilter(client -> client.getId() == id &&
+                    client.getRole().equals(Role.CLIENT)
+            ).findFirst();
+        }
+        return authRepo.findById(id);
     }
 
     @Override
     public Optional<User> getUserByID(int id) {
         return authRepo.findById(id);
     }
-
 
     /**
      * Retrieves all users that match the specified filter.
@@ -62,7 +84,23 @@ public class UserServiceImpl implements UserService {
      * @return a list of users that match the filter
      */
     @Override
-    public List<User> getUsersByFilter(Predicate<User> predicate) {
-        return authRepo.findByFilter(predicate).toList();
+    public List<User> getUsersByFilter(Role role, Predicate<User> predicate) throws RoleException {
+        return getUsersByFilterStream(role, predicate).toList();
+    }
+
+    @Override
+    public Stream<User> getUsersByFilterStream(Role role, Predicate<User> predicate) throws RoleException {
+        if (role.equals(Role.CLIENT)) throw new RoleException(RoleException.PERMISSION_ERROR_MSG);
+        if (role.equals(Role.MANAGER)) {
+            return authRepo.findByFilter(((Predicate<User>) client -> client.getRole().equals(Role.CLIENT))
+                    .and(predicate));
+        }
+        return authRepo.findByFilter(predicate);
+    }
+
+    @Override
+    public void editUser(Role role, User user) throws RoleException {
+        if (!role.equals(Role.ADMIN)) throw new RoleException(RoleException.PERMISSION_ERROR_MSG);
+        authRepo.update(user);
     }
 }
