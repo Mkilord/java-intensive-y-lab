@@ -3,13 +3,11 @@ package autoservice.model;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor()
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class Car implements View {
 
     int id;

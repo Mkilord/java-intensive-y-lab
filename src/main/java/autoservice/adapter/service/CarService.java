@@ -8,7 +8,6 @@ import autoservice.model.User;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /**
  * Service interface for managing {@link Car} objects.
@@ -25,7 +24,7 @@ public interface CarService {
      * @param car the car to be added
      * @return {@code true} if the car was successfully added, {@code false} otherwise
      */
-    boolean add(Role role, Car car) throws RoleException;
+    boolean add(Car car);
 
     /**
      * Deletes a {@link Car} from the service.
@@ -34,7 +33,7 @@ public interface CarService {
      * @return {@code true} if the car was successfully deleted, {@code false} otherwise
      */
 
-    boolean delete(Role role, Car car) throws RoleException;
+    boolean delete(Car car);
 
     /**
      * Retrieves a {@link Car} that matches the given filter.
@@ -42,7 +41,7 @@ public interface CarService {
      * @param predicate a predicate used to filter cars
      * @return an {@link Optional} containing the car if found, or an empty {@link Optional} if not
      */
-    Optional<Car> getCarByFilter(Role role,Predicate<Car> predicate);
+    Optional<Car> getCarByFilter(Predicate<Car> predicate);
 
     /**
      * Retrieves a {@link Car} by its ID.
@@ -50,15 +49,14 @@ public interface CarService {
      * @param id the ID of the car
      * @return an {@link Optional} containing the car if found, or an empty {@link Optional} if not
      */
-    Optional<Car> getById(Role role,int id);
+    Optional<Car> getById(int id);
 
     /**
      * Retrieves all {@link Car} objects.
      *
      * @return a list of all cars
      */
-    List<Car> getAllCar(Role role);
-    Stream<Car> getAllCarStream(Role role);
+    List<Car> getAllCar();
 
     /**
      * Retrieves {@link Car} objects that match the given filter.
@@ -66,12 +64,55 @@ public interface CarService {
      * @param predicate a predicate used to filter cars
      * @return a list of cars that match the filter
      */
-    List<Car> getCarsByFilter(Role role,Predicate<Car> predicate);
-    Stream<Car> getCarsByFilterStream(Role role,Predicate<Car> predicate);
+    List<Car> getCarsByFilter(Predicate<Car> predicate);
 
-    void editCar(Role role, Car car) throws RoleException;
+    void editCar(Car car);
+    void changeStatus(Car car, User user, CarState newState);
+    /**
+     * Marks a {@link Car} as available for sale.
+     * <p>
+     * Only users with roles other than {@link Role#CLIENT} can perform this action.
+     *
+     * @param car  the car to be marked for sale
+     * @param user the user performing the action
+     */
 
-    void changeStatus(Role role, Car car, CarState newState) throws RoleException;
+    @Deprecated
+    void markForSale(Car car, User user);
+
+    /**
+     * Marks a {@link Car} as sold.
+     * <p>
+     * Only users with roles other than {@link Role#CLIENT} can perform this action.
+     *
+     * @param car  the car to be marked as sold
+     * @param user the user performing the action
+     */
+    @Deprecated
+    void markForSold(Car car, User user);
+
+    /**
+     * Marks a {@link Car} as not for sale.
+     * <p>
+     * Only users with roles other than {@link Role#CLIENT} can perform this action.
+     *
+     * @param car  the car to be marked as not for sale
+     * @param user the user performing the action
+     */
+    @Deprecated
+    void markForNotSale(Car car, User user);
+
+    /**
+     * Marks a {@link Car} as needing service.
+     * <p>
+     * Only users with roles other than {@link Role#CLIENT} can perform this action.
+     *
+     * @param car  the car to be marked for service
+     * @param user the user performing the action
+     */
+    @Deprecated
+    void markForService(Car car, User user);
+
 }
 
 

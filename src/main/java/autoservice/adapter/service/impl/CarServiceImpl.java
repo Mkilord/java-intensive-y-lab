@@ -1,17 +1,17 @@
 package autoservice.adapter.service.impl;
 
 import autoservice.adapter.repository.CarRepository;
+import autoservice.adapter.repository.impl.CarRepositoryImpl;
 import autoservice.adapter.service.CarService;
-import autoservice.adapter.service.RoleException;
 import autoservice.model.Car;
 import autoservice.model.CarState;
 import autoservice.model.Role;
+import autoservice.model.User;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Implementation of the {@link CarService} interface.
@@ -57,8 +57,7 @@ public class CarServiceImpl implements CarService {
      * @return {@code true} if the car was added successfully, {@code false} otherwise
      */
     @Override
-    public boolean add(Role role, Car car) throws RoleException {
-        if (role != Role.ADMIN) throw new RoleException(RoleException.PERMISSION_ERROR_MSG);
+    public boolean add(Car car) {
         return carRepo.create(car);
     }
 
@@ -69,8 +68,7 @@ public class CarServiceImpl implements CarService {
      * @return {@code true} if the car was deleted successfully, {@code false} otherwise
      */
     @Override
-    public boolean delete(Role role, Car car) throws RoleException {
-        if (role != Role.ADMIN) throw new RoleException(RoleException.PERMISSION_ERROR_MSG);
+    public boolean delete(Car car) {
         return carRepo.delete(car);
     }
 
@@ -81,11 +79,7 @@ public class CarServiceImpl implements CarService {
      * @return an {@link Optional} containing the first car that matches the filter, or an empty {@link Optional} if no car matches
      */
     @Override
-    public Optional<Car> getCarByFilter(Role role, Predicate<Car> predicate) {
-        if (role != Role.CLIENT) {
-            return carRepo.findByFilter(((Predicate<Car>) car -> car.getState().equals(CarState.FOR_SALE))
-                    .and(predicate)).findFirst();
-        }
+    public Optional<Car> getCarByFilter(Predicate<Car> predicate) {
         return carRepo.findByFilter(predicate).findFirst();
     }
 
@@ -96,11 +90,7 @@ public class CarServiceImpl implements CarService {
      * @return an {@link Optional} containing the car with the specified ID, or an empty {@link Optional} if no car matches
      */
     @Override
-    public Optional<Car> getById(Role role, int id) {
-        if (role == Role.CLIENT) {
-            return carRepo.findByFilter(car -> car.getId() == id
-                    && car.getState().equals(CarState.FOR_SALE)).findFirst();
-        }
+    public Optional<Car> getById(int id) {
         return carRepo.findById(id);
     }
 
@@ -110,25 +100,8 @@ public class CarServiceImpl implements CarService {
      * @return a list of all cars
      */
     @Override
-    public List<Car> getAllCar(Role role) {
-        return getAllCarStream(role).toList();
-    }
-
-    @Override
-    public Stream<Car> getAllCarStream(Role role) {
-        if (role == Role.CLIENT) {
-            return carRepo.findByFilter(car -> car.getState().equals(CarState.FOR_SALE));
-        }
-        return carRepo.findAll().stream();
-    }
-
-    @Override
-    public Stream<Car> getCarsByFilterStream(Role role, Predicate<Car> predicate) {
-        if (role != Role.CLIENT) {
-            return carRepo.findByFilter(((Predicate<Car>) car -> car.getState().equals(CarState.FOR_SALE))
-                    .and(predicate));
-        }
-        return carRepo.findByFilter(predicate);
+    public List<Car> getAllCar() {
+        return carRepo.findAll();
     }
 
     /**
@@ -137,22 +110,76 @@ public class CarServiceImpl implements CarService {
      * @param predicate the filter criteria
      * @return a list of cars that match the filter
      */
-
     @Override
-    public List<Car> getCarsByFilter(Role role, Predicate<Car> predicate) {
-        return getCarsByFilterStream(role, predicate).toList();
+    public List<Car> getCarsByFilter(Predicate<Car> predicate) {
+        return carRepo.findByFilter(predicate).toList();
     }
 
     @Override
-    public void editCar(Role role, Car car) throws RoleException {
-        if (role != Role.ADMIN) throw new RoleException(RoleException.PERMISSION_ERROR_MSG);
+    public void editCar(Car car) {
         carRepo.update(car);
     }
 
     @Override
-    public void changeStatus(Role role, Car car, CarState newState) throws RoleException {
-        if (role != Role.ADMIN) throw new RoleException(RoleException.PERMISSION_ERROR_MSG);
+    public void changeStatus(Car car, User user, CarState newState) {
+        if (user.getRole() == Role.CLIENT) return;
         car.setState(newState);
+        carRepo.update(car);
+    }
+
+    /**
+     * Marks a car as "For Sale" if the user is not a client.
+     *
+     * @param car  the car to mark
+     * @param user the user attempting to mark the car
+     */
+    @Deprecated
+    @Override
+    public void markForSale(Car car, User user) {
+        if (user.getRole() == Role.CLIENT) return;
+        car.setState(CarState.FOR_SALE);
+        carRepo.update(car);
+    }
+
+    /**
+     * Marks a car as "Sold" if the user is not a client.
+     *
+     * @param car  the car to mark
+     * @param user the user attempting to mark the car
+     */
+    @Deprecated
+    @Override
+    public void markForSold(Car car, User user) {
+        if (user.getRole() == Role.CLIENT) return;
+        car.setState(CarState.SOLD);
+        carRepo.update(car);
+    }
+
+    /**
+     * Marks a car as "Not for Sale" if the user is not a client.
+     *
+     * @param car  the car to mark
+     * @param user the user attempting to mark the car
+     */
+    @Deprecated
+    @Override
+    public void markForNotSale(Car car, User user) {
+        if (user.getRole() == Role.CLIENT) return;
+        car.setState(CarState.NOT_SALE);
+        carRepo.update(car);
+    }
+
+    /**
+     * Marks a car as "For Service" if the user is not a client.
+     *
+     * @param car  the car to mark
+     * @param user the user attempting to mark the car
+     */
+    @Deprecated
+    @Override
+    public void markForService(Car car, User user) {
+        if (user.getRole() == Role.CLIENT) return;
+        car.setState(CarState.FOR_SERVICE);
         carRepo.update(car);
     }
 }

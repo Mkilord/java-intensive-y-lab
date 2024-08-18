@@ -3,7 +3,7 @@ package autoservice.adapter.config;
 import lombok.Cleanup;
 import lombok.SneakyThrows;
 
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
@@ -12,17 +12,13 @@ import java.util.Properties;
 public class DatabaseConfig {
 
     private static Properties properties;
-    private static final String DEFAULT_FILE_PATH = "database.properties";
+    private static final String DEFAULT_FILE_PATH = "src/main/resources/database.properties";
 
     public static Properties loadProperties() throws IOException {
         if (Objects.nonNull(properties)) return properties;
         properties = new Properties();
-
         @Cleanup
-        var input = DatabaseConfig.class.getClassLoader().getResourceAsStream(DEFAULT_FILE_PATH);
-        if (input == null) {
-            throw new FileNotFoundException("Property file '" + DEFAULT_FILE_PATH + "' not found in the classpath");
-        }
+        var input = new FileInputStream(DEFAULT_FILE_PATH);
         properties.load(input);
 
         return properties;

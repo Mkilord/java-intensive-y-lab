@@ -12,74 +12,46 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AuditServiceTest {
+class AuditServiceTest {
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
+        // Clear logs before each test
         AuditService.viewLogs().clear();
     }
 
     @Test
-    public void testLogActionWithoutInfo() {
-        String username = "user1";
-        AuditAction action = AuditAction.LOG_IN;
-
-        AuditService.logAction(username, action);
-
+    void testLogAction() {
+        AuditService.logAction("johndoe", AuditAction.LOG_IN);
         List<String> logs = AuditService.viewLogs();
-        assertEquals(1, logs.size());
-        assertTrue(logs.get(0).contains(username));
-        assertTrue(logs.get(0).contains(action.toString()));
+        assertEquals(1, logs.size(), "There should be 1 log entry");
+        assertTrue(logs.get(0).contains("User: johndoe - Action: Login"), "Log entry should match the expected format");
     }
 
     @Test
-    public void testLogActionWithInfo() {
-        String username = "user2";
-        AuditAction action = AuditAction.EDIT_CAR;
-        String info = "Changed the car color.";
+    void testFilterLogsByString() {
+        AuditService.logAction("johndoe", AuditAction.LOG_IN);
+        AuditService.logAction("janesmith", AuditAction.LOG_IN);
 
-        AuditService.logAction(username, action, info);
-
-        List<String> logs = AuditService.viewLogs();
-        assertEquals(1, logs.size());
-        assertTrue(logs.get(0).contains(username));
-        assertTrue(logs.get(0).contains(action.toString()));
-        assertTrue(logs.get(0).contains(info));
+        List<String> filteredLogs = AuditService.filterLogsByString("Login");
+        assertEquals(1, filteredLogs.size(), "There should be 1 log entry containing 'Login'");
+        assertTrue(filteredLogs.get(0).contains("User: johndoe - Action: Login"), "Filtered log entry should match the expected format");
     }
 
     @Test
-    public void testFilterLogsByString() {
-        String username = "user3";
-        AuditAction action1 = AuditAction.ADD_CAR;
-        AuditAction action2 = AuditAction.CANCEL_ORDER;
-        AuditService.logAction(username, action1);
-        AuditService.logAction(username, action2, "Order cancelled due to payment issue.");
-
-        List<String> filteredLogs = AuditService.filterLogsByString(action1.toString());
-
-        assertEquals(1, filteredLogs.size());
-        String log = filteredLogs.get(0);
-        assertTrue(log.contains(action1.toString()));
-        assertFalse(log.contains(action2.toString()));
-    }
-
-
-    @Test
-    public void testExportLogs() throws IOException {
-        String username = "user4";
-        AuditAction action = AuditAction.CREATE_ORDER;
-        AuditService.logAction(username, action);
+    void testExportLogs() throws IOException {
+        AuditService.logAction("johndoe", AuditAction.LOG_IN);
+        AuditService.logAction("janesmith", AuditAction.LOG_IN);
 
         Path tempFile = Files.createTempFile("audit_logs", ".txt");
-        String filePath = tempFile.toString();
+        AuditService.exportLogs(tempFile.toString());
 
-        AuditService.exportLogs(filePath);
+        List<String> fileContent = Files.readAllLines(tempFile);
+        assertEquals(2, fileContent.size(), "Exported file should contain 2 log entries");
+        assertTrue(fileContent.get(0).contains("User: johndoe - Action: Login"), "First line of the file should match the expected format");
+        assertTrue(fileContent.get(1).contains("User: janesmith - Action: Logout"), "Second line of the file should match the expected format");
 
-        List<String> logsFromFile = Files.readAllLines(tempFile);
-        assertEquals(1, logsFromFile.size());
-        assertTrue(logsFromFile.get(0).contains(username));
-        assertTrue(logsFromFile.get(0).contains(action.toString()));
-
-        Files.delete(tempFile);
+        // Clean up the temporary file after the test
+        Files.deleteIfExists(tempFile);
     }
 }

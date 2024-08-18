@@ -1,8 +1,0 @@
-<aspectj>
-    <aspects>
-        <aspect name="autoservice.adapter.aspect.PerformanceLoggingAspect"/>
-    </aspects>
-    <weaver>
-        <include within="autoservice.adapter.service.impl..*"/>
-    </weaver>
-</aspectj>

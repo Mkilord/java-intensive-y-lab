@@ -1,9 +1,6 @@
 package autoservice.adapter.service;
 
 import autoservice.model.Order;
-import autoservice.model.Role;
-import autoservice.model.SalesOrder;
-import autoservice.model.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,17 +21,19 @@ public interface MyOrderService<T extends Order> {
                 .collect(Collectors.toList());
     }
 
-    boolean add(Role role, T order) throws RoleException, OrderException;
-    boolean delete(Role role, T order) throws RoleException;
+    boolean add(T order);
 
-    void complete(Role role, T order) throws RoleException;
+    boolean delete(T order);
+
+    void complete(T order);
 
     void cancel(T order);
 
-    void inProgress(Role role, T order) throws RoleException;
+    void inProgress(T order);
 
-    Optional<T> getOrderByFilter(User user, Predicate<T> predicate);
-    List<T> getAllOrders(User user);
+    Optional<T> getOrderByFilter(Predicate<T> predicate);
 
-    List<T> getOrdersByFilter(User user, Predicate<T> predicate);
+    List<T> getAllOrders();
+
+    List<T> getOrdersByFilter(Predicate<T> predicate);
 }

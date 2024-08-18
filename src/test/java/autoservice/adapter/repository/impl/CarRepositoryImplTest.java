@@ -96,6 +96,8 @@ class CarRepositoryImplTest {
 
         var fetchedCarOpt = carRepository.findById(car.getId());
         assertTrue(fetchedCarOpt.isPresent(), "Car should be found");
+        System.out.println("Expected price: " + 32000);
+        System.out.println("Actual price: " + fetchedCarOpt.get().getPrice());
         assertEquals(32000, fetchedCarOpt.get().getPrice(), "Price should match");
     }
 

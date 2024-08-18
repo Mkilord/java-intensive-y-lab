@@ -3,7 +3,6 @@ package autoservice.adapter.config;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.SneakyThrows;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -26,9 +25,7 @@ public class DatabaseManager {
         user = newUser;
     }
 
-    @SneakyThrows(ClassNotFoundException.class)
     public static Connection getConnection() throws SQLException {
-        Class.forName("org.postgresql.Driver");
         return DriverManager.getConnection(url, user, password);
     }
 }
