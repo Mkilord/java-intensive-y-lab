@@ -2,7 +2,7 @@ package autoservice.adapter.repository.impl;
 
 import autoservice.adapter.config.DatabaseManager;
 import autoservice.adapter.repository.CarRepository;
-import autoservice.model.Car;
+import autoservice.domen.model.Car;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

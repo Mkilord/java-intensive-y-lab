@@ -3,17 +3,17 @@ package autoservice.adapter.service;
 import autoservice.adapter.repository.CarRepository;
 import autoservice.adapter.repository.OrderRepository;
 import autoservice.adapter.service.impl.SalesOrderServiceImpl;
+import autoservice.domen.model.Car;
+import autoservice.domen.model.enums.Role;
+import autoservice.domen.model.SalesOrder;
+import autoservice.domen.model.User;
 import autoservice.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static autoservice.model.CarState.*;
-import static autoservice.model.OrderStatus.*;
+import static autoservice.domen.model.enums.CarState.*;
+import static autoservice.domen.model.enums.OrderStatus.*;
 import static java.time.LocalDate.now;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

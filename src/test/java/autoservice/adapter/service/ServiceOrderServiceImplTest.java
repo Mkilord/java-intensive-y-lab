@@ -3,6 +3,10 @@ package autoservice.adapter.service;
 import autoservice.adapter.repository.CarRepository;
 import autoservice.adapter.repository.ServiceOrderRepository;
 import autoservice.adapter.service.impl.ServiceOrderServiceImpl;
+import autoservice.domen.model.*;
+import autoservice.domen.model.enums.CarState;
+import autoservice.domen.model.enums.OrderStatus;
+import autoservice.domen.model.enums.Role;
 import autoservice.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,8 +15,8 @@ import org.mockito.Mockito;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static autoservice.model.CarState.FOR_SALE;
-import static autoservice.model.CarState.SOLD;
+import static autoservice.domen.model.enums.CarState.FOR_SALE;
+import static autoservice.domen.model.enums.CarState.SOLD;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServiceOrderServiceImplTest {

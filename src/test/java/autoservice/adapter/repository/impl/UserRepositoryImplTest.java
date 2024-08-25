@@ -2,9 +2,8 @@ package autoservice.adapter.repository.impl;
 
 import autoservice.adapter.config.DatabaseManager;
 import autoservice.adapter.repository.UserRepository;
-import autoservice.adapter.repository.impl.UserRepositoryImpl;
-import autoservice.model.Role;
-import autoservice.model.User;
+import autoservice.domen.model.enums.Role;
+import autoservice.domen.model.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -199,7 +198,7 @@ public class UserRepositoryImplTest {
         boolean userCreated = userRepository.create(user);
         assertTrue(userCreated, "User should be created");
 
-        var fetchedUserOpt = userRepository.getByUsername(user.getUsername());
+        var fetchedUserOpt = userRepository.findByUsername(user.getUsername());
         assertTrue(fetchedUserOpt.isPresent(), "User should be found by username");
         assertEquals(user.getUsername(), fetchedUserOpt.get().getUsername(), "Username should match");
     }

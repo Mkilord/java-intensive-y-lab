@@ -1,226 +1,130 @@
 package autoservice.adapter.repository.impl;
 
-import autoservice.adapter.config.DatabaseManager;
-import autoservice.adapter.repository.CRUDRepository;
 import autoservice.adapter.repository.UserRepository;
-import autoservice.model.Role;
-import autoservice.model.User;
+import autoservice.domen.model.User;
+import autoservice.domen.model.enums.Role;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-/**
- * Implementation of the {@link UserRepository} interface.
- * This class provides basic CRUD operations for {@link User} objects using an in-memory set.
- */
+@Repository
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserRepositoryImpl implements UserRepository {
 
-    /**
-     * Adds a new {@link User} to the repository.
-     *
-     * @param user the user to be added
-     * @return {@code true} if the user was added successfully, {@code false} otherwise
-     */
+    JdbcTemplate jdbcTemplate;
+
+    private final RowMapper<User> userRowMapper = (rs, rowNum) -> {
+        var id = rs.getInt("id");
+        var username = rs.getString("username");
+        var password = rs.getString("password");
+        var name = rs.getString("name");
+        var surname = rs.getString("surname");
+        var phone = rs.getString("phone");
+        var role = Role.valueOf(rs.getString("role"));
+        var email = rs.getString("email");
+        return new User(id, role, email, username, password, name, surname, phone);
+    };
+
     @Override
-    public boolean create(User user) {
-        String sql = "INSERT INTO car_service.user (username, password, name, surname, phone, role) VALUES (?, ?, ?, ?, ?, ?)";
+    public Optional<User> create(User user) {
+        if (user.getId() == null || !existsById(user.getId())) {
+            var insertSql = "INSERT INTO car_service.user (username, password, name, surname, phone, role, email) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            var keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, user.getUsername());
+                ps.setString(2, user.getPassword());
+                ps.setString(3, user.getName());
+                ps.setString(4, user.getSurname());
+                ps.setString(5, user.getPhone());
+                ps.setString(6, user.getRole().name());
+                ps.setString(7, user.getEmail());
+                return ps;
+            }, keyHolder);
 
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getPassword());
-            statement.setString(3, user.getName());
-            statement.setString(4, user.getSurname());
-            statement.setString(5, user.getPhone());
-            statement.setString(6, user.getRole().name());
-
-            int rowsAffected = statement.executeUpdate();
-
-            if (rowsAffected > 0) {
-                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        int generatedId = generatedKeys.getInt(1);
-                        user.setId(generatedId);
-                        return true;
-                    }
-                }
+            var generatedId = keyHolder.getKey();
+            if (generatedId != null) {
+                user.setId(generatedId.intValue());
             }
-        } catch (SQLException e) {
-            CRUDRepository.getSQLError(e);
+            return Optional.of(user);
         }
-        return false;
-    }
-
-
-    /**
-     * Removes a {@link User} from the repository.
-     *
-     * @param user the user to be removed
-     * @return {@code true} if the user was removed successfully, {@code false} otherwise
-     */
-    @Override
-    public boolean delete(User user) {
-        String sql = "DELETE FROM car_service.user WHERE id = ?";
-
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setLong(1, user.getId());
-
-            int rowsAffected = statement.executeUpdate();
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            CRUDRepository.getSQLError(e);
-            return false;
-        }
+        return Optional.empty();
     }
 
     @Override
-    public void update(User user) {
-        String sql = "UPDATE car_service.user SET username = ?, password = ?, name = ?, surname = ?, phone = ?, role = ? WHERE id = ?";
+    public int delete(User user) {
+        var sql = "DELETE FROM car_service.user WHERE id = ?";
+        return jdbcTemplate.update(sql, user.getId());
+    }
 
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+    @Override
+    public boolean existsById(int id) {
+        var sql = "SELECT COUNT(*) FROM car_service.user WHERE id = ?";
+        var count = jdbcTemplate.queryForObject(sql, Integer.class, id);
+        return count != null && count > 0;
+    }
 
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getPassword());
-            statement.setString(3, user.getName());
-            statement.setString(4, user.getSurname());
-            statement.setString(5, user.getPhone());
-            statement.setString(6, user.getRole().name());
-            statement.setInt(7, user.getId());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            CRUDRepository.getSQLError(e);
-        }
+    @Override
+    public int update(User user) {
+        var sql = "UPDATE car_service.user SET username = ?, password = ?, name = ?, surname = ?, phone = ?, role = ?, email = ? WHERE id = ?";
+        return jdbcTemplate.update(sql,
+                user.getUsername(),
+                user.getPassword(),
+                user.getName(),
+                user.getSurname(),
+                user.getPhone(),
+                user.getRole().name(),
+                user.getEmail(),
+                user.getId());
     }
 
     @Override
     public Optional<User> findById(int id) {
-        String sql = "SELECT id, username, password, name, surname, phone, role " +
-                "FROM car_service.user WHERE id = ?";
-
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setInt(1, id);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    var tempId = resultSet.getInt("id");
-                    var username = resultSet.getString("username");
-                    var password = resultSet.getString("password");
-                    var name = resultSet.getString("name");
-                    var surname = resultSet.getString("surname");
-                    var phone = resultSet.getString("phone");
-                    var role = Role.valueOf(resultSet.getString("role"));
-                    return Optional.of(new User(tempId, role, username, password, name, surname, phone));
-                }
-            }
-        } catch (SQLException e) {
-            CRUDRepository.getSQLError(e);
-        }
-        return Optional.empty();
+        String sql = "SELECT id, email, username, password, name, surname, phone, role FROM car_service.user WHERE id = ?";
+        return jdbcTemplate.query(sql, userRowMapper, id).stream().findFirst();
     }
 
-
-    /**
-     * Retrieves all users from the repository.
-     *
-     * @return a list of all users
-     */
     @Override
-    public List<User> findAll() {
-        List<User> users = new ArrayList<>();
-        String sql = "SELECT id, username, password, name, surname, phone, role FROM car_service.user";
-
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
-
-            while (resultSet.next()) {
-                var id = resultSet.getInt("id");
-                var username = resultSet.getString("username");
-                var password = resultSet.getString("password");
-                var name = resultSet.getString("name");
-                var surname = resultSet.getString("surname");
-                var phone = resultSet.getString("phone");
-                var role = Role.valueOf(resultSet.getString("role"));
-                User user = new User(id, role, username, password, name, surname, phone);
-                users.add(user);
-            }
-        } catch (SQLException e) {
-            CRUDRepository.getSQLError(e);
-        }
-        return users;
+    public Stream<User> findAll() {
+        var sql = "SELECT id, username, password, name, surname, phone, role, email FROM car_service.user";
+        return jdbcTemplate.query(sql, userRowMapper).stream();
     }
 
-
-    /**
-     * Finds users in the repository that match the given filter.
-     *
-     * @param condition the filter to apply to the users
-     * @return a stream of users that match the filter
-     */
     @Override
     public Stream<User> findByFilter(Predicate<User> condition) {
-        return findAll().stream().filter(condition);
+        return findAll().filter(condition);
+    }
+
+    public boolean existsByUsername(String username) {
+        var sql = "SELECT COUNT(*) FROM car_service.user WHERE username = ?";
+        var count = jdbcTemplate.queryForObject(sql, Integer.class, username);
+        return count != null && count > 0;
+    }
+
+    public boolean existsByEmail(String email) {
+        var sql = "SELECT COUNT(*) FROM car_service.user WHERE email = ?";
+        var count = jdbcTemplate.queryForObject(sql, Integer.class, email);
+        return count != null && count > 0;
     }
 
     @Override
-    public Optional<User> getByUsernameAndPassword(String username, String password) {
-        String sql = "SELECT id, username, password, name, surname, phone, role FROM car_service.user WHERE username = ? AND password = ?";
-
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setString(1, username);
-            statement.setString(2, password);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    var id = resultSet.getInt("id");
-                    var name = resultSet.getString("name");
-                    var surname = resultSet.getString("surname");
-                    var phone = resultSet.getString("phone");
-                    var role = Role.valueOf(resultSet.getString("role"));
-                    return Optional.of(new User(id, role, username, password, name, surname, phone));
-                }
-            }
-        } catch (SQLException e) {
-            CRUDRepository.getSQLError(e);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<User> getByUsername(String username) {
-        String sql = "SELECT id, username, password, name, surname, phone, role FROM car_service.user WHERE username = ?";
-
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setString(1, username);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    var id = resultSet.getInt("id");
-                    var password = resultSet.getString("password");
-                    var name = resultSet.getString("name");
-                    var surname = resultSet.getString("surname");
-                    var phone = resultSet.getString("phone");
-                    var role = Role.valueOf(resultSet.getString("role"));
-                    return Optional.of(new User(id, role, username, password, name, surname, phone));
-                }
-            }
-        } catch (SQLException e) {
-            CRUDRepository.getSQLError(e);
-        }
-        return Optional.empty();
+    public Optional<User> findByUsername(String username) {
+        var sql = "SELECT id, role, email, username, password, name, surname, phone FROM car_service.user WHERE username = ?";
+        return jdbcTemplate.query(sql, userRowMapper, username)
+                .stream()
+                .findFirst();
     }
 }

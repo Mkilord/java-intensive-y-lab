@@ -3,107 +3,79 @@ package autoservice.adapter.service.impl;
 import autoservice.adapter.repository.CarRepository;
 import autoservice.adapter.repository.ServiceOrderRepository;
 import autoservice.adapter.service.MyOrderService;
-import autoservice.adapter.service.OrderException;
-import autoservice.adapter.service.RoleException;
-import autoservice.model.*;
+import autoservice.adapter.service.NotFoundException;
+import autoservice.domen.model.ServiceOrder;
+import autoservice.domen.model.enums.CarState;
+import autoservice.domen.model.enums.OrderStatus;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 
-/**
- *
- */
+@Service
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ServiceOrderServiceImpl implements MyOrderService<ServiceOrder> {
+    ServiceOrderRepository orderRepo;
+    CarRepository carRepo;
 
-    private final ServiceOrderRepository serviceOrderRepo;
-    private final CarRepository carRepo;
-
-    public ServiceOrderServiceImpl(ServiceOrderRepository serviceOrderRepo, CarRepository carRepo) {
-        this.serviceOrderRepo = serviceOrderRepo;
-        this.carRepo = carRepo;
+    @Override
+    public ServiceOrder getById(int id) {
+        return orderRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(NotFoundException.MSG));
     }
 
     @Override
-    public boolean add(Role role, ServiceOrder order) throws RoleException, OrderException {
-        if (role != Role.CLIENT) {
-            throw new RoleException(RoleException.PERMISSION_ERROR_MSG);
-        }
+    public ServiceOrder getEntityByFilter(Predicate<ServiceOrder> predicate) {
+        return orderRepo.findByFilter(predicate).findFirst()
+                .orElseThrow(() -> new NotFoundException(NotFoundException.MSG));
+    }
+
+    @Override
+    public List<ServiceOrder> getAll() {
+        var orders = orderRepo.findAll().toList();
+        if (orders.isEmpty()) throw new NotFoundException(NotFoundException.MSG);
+        return orders;
+    }
+
+    @Override
+    public List<ServiceOrder> getEntitiesByFilter(Predicate<ServiceOrder> predicate) {
+        return orderRepo.findByFilter(predicate).toList();
+    }
+
+    @Override
+    public void changeStatus(ServiceOrder order, OrderStatus newStatus) {
+        order.setStatus(newStatus);
+        orderRepo.update(order);
+    }
+
+    @Override
+    public ServiceOrder create(ServiceOrder order) {
         var car = order.getCar();
-        if (car.getState() != CarState.FOR_SALE) {
-            throw new OrderException(OrderException.INVALID_CAR_ERROR_MSG);
-        }
-        car.setState(CarState.SOLD);
-        carRepo.update(car);
-        return serviceOrderRepo.create(order);
-    }
-
-    @Override
-    public boolean delete(Role role, ServiceOrder order) throws RoleException {
-        if (role != Role.ADMIN) throw new RoleException(RoleException.PERMISSION_ERROR_MSG);
-        return serviceOrderRepo.delete(order);
-    }
-
-    @Override
-    public void complete(Role role, ServiceOrder order) throws RoleException {
-        if (role != Role.MANAGER && role != Role.ADMIN) {
-            throw new RoleException(RoleException.PERMISSION_ERROR_MSG);
-        }
-        order.setStatus(OrderStatus.COMPLETE);
-        serviceOrderRepo.update(order);
-    }
-
-    @Override
-    public void cancel(ServiceOrder order) {
-        var car = order.getCar();
-        car.setState(CarState.NOT_SALE);
+        car.setState(CarState.FOR_SALE);
         order.setStatus(OrderStatus.CANCEL);
         carRepo.update(car);
-        serviceOrderRepo.update(order);
-    }
-
-
-    @Override
-    public void inProgress(Role role, ServiceOrder order) throws RoleException {
-        if (role != Role.MANAGER && role != Role.ADMIN) {
-            throw new RoleException(RoleException.PERMISSION_ERROR_MSG);
-        }
-        var car = order.getCar();
-        car.setState(CarState.SOLD);
-        order.setStatus(OrderStatus.IN_PROGRESS);
-        carRepo.update(car);
-        serviceOrderRepo.update(order);
+        return orderRepo.create(order)
+                .orElseThrow(() -> new RuntimeException("Не удалось создать заказ на обслуживание!"));
     }
 
     @Override
-    public List<ServiceOrder> getAllOrders(User user) {
-        var role = user.getRole();
-        if (role == Role.CLIENT) {
-            return serviceOrderRepo.findByFilter(order -> order.getCustomer().getId() == user.getId())
-                    .toList();
+    public void delete(ServiceOrder order) {
+        var exist = orderRepo.existsById(order.getId());
+        if (!exist) {
+            throw new NotFoundException("Заказ на обслуживание для удаления не найден");
         }
-        return serviceOrderRepo.findAll();
     }
 
     @Override
-    public List<ServiceOrder> getOrdersByFilter(User user, Predicate<ServiceOrder> predicate) {
-        var role = user.getRole();
-        if (role == Role.CLIENT) {
-            return serviceOrderRepo.findByFilter(((Predicate<ServiceOrder>) salesOrder -> salesOrder.getCustomer().getId() == user.getId())
-                            .and(predicate))
-                    .toList();
+    public void update(ServiceOrder order) {
+        var exist = orderRepo.existsById(order.getId());
+        if (!exist) {
+            throw new NotFoundException("Заказ на обслуживание для обновления не найден");
         }
-        return serviceOrderRepo.findByFilter(predicate).toList();
-    }
-
-    @Override
-    public Optional<ServiceOrder> getOrderByFilter(User user, Predicate<ServiceOrder> predicate) {
-        var role = user.getRole();
-        if (role == Role.CLIENT) {
-            return serviceOrderRepo.findByFilter(((Predicate<ServiceOrder>) salesOrder -> salesOrder.getCustomer().getId() == user.getId())
-                            .and(predicate))
-                    .findFirst();
-        }
-        return serviceOrderRepo.findByFilter(predicate).findFirst();
+        orderRepo.update(order);
     }
 }
