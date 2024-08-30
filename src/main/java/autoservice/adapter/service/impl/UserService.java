@@ -1,8 +1,9 @@
 package autoservice.adapter.service.impl;
 
 import autoservice.adapter.repository.UserRepository;
-import autoservice.adapter.service.NotFoundException;
 import autoservice.adapter.service.EntityService;
+import autoservice.adapter.service.NotFoundException;
+import autoservice.adapter.service.UserConflictException;
 import autoservice.domen.model.User;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -84,10 +85,10 @@ public class UserService implements EntityService<User> {
     @Override
     public User create(User user) {
         if (repository.existsByUsername(user.getUsername())) {
-            throw new NotFoundException("Пользователь с таким именем уже существует");
+            throw new UserConflictException("Пользователь с таким именем уже существует");
         }
         if (repository.existsByEmail(user.getEmail())) {
-            throw new NotFoundException("Пользователь с таким email уже существует");
+            throw new UserConflictException("Пользователь с таким email уже существует");
         }
         return repository.create(user).orElseThrow(() -> new RuntimeException("Не удалось создать пользователя!"));
     }
