@@ -1,8 +1,8 @@
 package autoservice.adapter.service;
 
 import autoservice.adapter.service.impl.UserAuthServiceImpl;
-import autoservice.model.Role;
-import autoservice.model.User;
+import autoservice.domen.model.enums.Role;
+import autoservice.domen.model.User;
 import autoservice.adapter.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

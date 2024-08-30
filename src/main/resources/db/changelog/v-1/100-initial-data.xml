@@ -13,6 +13,7 @@
             <column name="name" value="John"/>
             <column name="surname" value="Doe"/>
             <column name="phone" value="123-456-7890"/>
+            <column name="email" value="test1@email.com"/>
         </insert>
         <insert tableName="user" schemaName="car_service">
             <column name="role" value="MANAGER"/>
@@ -21,6 +22,7 @@
             <column name="name" value="Jane"/>
             <column name="surname" value="Smith"/>
             <column name="phone" value="987-654-3210"/>
+            <column name="email" value="test2@email.com"/>
         </insert>
         <insert tableName="user" schemaName="car_service">
             <column name="role" value="CLIENT"/>
@@ -29,6 +31,7 @@
             <column name="name" value="Alice"/>
             <column name="surname" value="Johnson"/>
             <column name="phone" value="456-789-0123"/>
+            <column name="email" value="test3@email.com"/>
         </insert>
         <insert tableName="user" schemaName="car_service">
             <column name="role" value="MANAGER"/>
@@ -37,6 +40,7 @@
             <column name="name" value="Bob"/>
             <column name="surname" value="Brown"/>
             <column name="phone" value="321-654-9870"/>
+            <column name="email" value="test4@email.com"/>
         </insert>
     </changeSet>
 

@@ -1,140 +1,48 @@
 package autoservice.adapter.repository.impl;
 
-import autoservice.adapter.config.DatabaseManager;
-import autoservice.adapter.repository.CRUDRepository;
 import autoservice.adapter.repository.CarRepository;
 import autoservice.adapter.repository.OrderRepository;
 import autoservice.adapter.repository.UserRepository;
-import autoservice.model.Car;
-import autoservice.model.OrderStatus;
-import autoservice.model.SalesOrder;
-import autoservice.model.User;
+import autoservice.domen.model.Car;
+import autoservice.domen.model.SalesOrder;
+import autoservice.domen.model.User;
+import autoservice.domen.model.enums.OrderStatus;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-/**
- * Implementation of the {@link OrderRepository} interface.
- * This class provides basic CRUD operations for {@link SalesOrder} objects using an in-memory list.
- */
+@Repository
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderRepositoryImpl implements OrderRepository {
 
-    private final UserRepository userRepository;
-    private final CarRepository carRepository;
+    UserRepository userRepository;
+    CarRepository carRepository;
+    JdbcTemplate jdbcTemplate;
 
-    public OrderRepositoryImpl(UserRepository userRepository, CarRepository carRepository) {
-        this.userRepository = userRepository;
-        this.carRepository = carRepository;
-    }
+    private final RowMapper<SalesOrder> salesOrderRowMapper = (ResultSet rs, int rowNum) -> {
+        var id = rs.getInt("id");
+        var customerId = rs.getInt("customer_id");
+        var carId = rs.getInt("car_id");
+        var date = rs.getDate("date");
+        var status = OrderStatus.valueOf(rs.getString("status"));
+        var customer = getUserById(customerId).orElseThrow(() -> new SQLException("User not found"));
+        var car = getCarById(carId).orElseThrow(() -> new SQLException("Car not found"));
 
-    @Override
-    public boolean create(SalesOrder order) {
-        String sql = "INSERT INTO car_service.sales_order (customer_id, car_id, date, status) VALUES (?, ?, ?, ?)";
-
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            statement.setInt(1, order.getCustomer().getId());
-            statement.setInt(2, order.getCar().getId());
-            statement.setDate(3, Date.valueOf(String.valueOf(order.getDate())));
-            statement.setString(4, order.getStatus().name());
-
-            int rowsAffected = statement.executeUpdate();
-
-            if (rowsAffected > 0) {
-                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        int generatedId = generatedKeys.getInt(1);
-                        order.setId(generatedId);
-                        return true;
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            CRUDRepository.getSQLError(e);
-        }
-        return false;
-    }
-
-
-    /**
-     * Removes a {@link SalesOrder} from the repository.
-     *
-     * @param order the sales order to be removed
-     * @return {@code true} if the sales order was removed successfully, {@code false} otherwise
-     */
-    @Override
-    public boolean delete(SalesOrder order) {
-        String sql = "DELETE FROM car_service.sales_order WHERE id = ?";
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, order.getId());
-            int rowsAffected = statement.executeUpdate();
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            CRUDRepository.getSQLError(e);
-            return false;
-        }
-    }
-
-
-    @Override
-    public void update(SalesOrder order) {
-        String sql = "UPDATE car_service.sales_order SET customer_id = ?, car_id = ?, date = ?, status = ? WHERE id = ?";
-
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setInt(1, order.getCustomer().getId());
-            statement.setInt(2, order.getCar().getId());
-            statement.setDate(3, Date.valueOf(String.valueOf(order.getDate())));
-            statement.setString(4, order.getStatus().name());
-            statement.setInt(5, order.getId());
-
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            CRUDRepository.getSQLError(e);
-        }
-    }
-
-
-    @Override
-    public Optional<SalesOrder> findById(int id) {
-        String sql = "SELECT id, customer_id, car_id, date, status FROM car_service.sales_order WHERE id = ?";
-
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setInt(1, id);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    var orderId = resultSet.getInt("id");
-                    var customerId = resultSet.getInt("customer_id");
-                    var carId = resultSet.getInt("car_id");
-                    var date = resultSet.getDate("date").toLocalDate();
-                    var statusStr = resultSet.getString("status");
-                    var status = OrderStatus.valueOf(statusStr);
-
-                    var userOpt = getUserById(customerId);
-                    if (userOpt.isEmpty()) return Optional.empty();
-
-                    var carOpt = getCarById(carId);
-                    if (carOpt.isEmpty()) return Optional.empty();
-
-                    var order = new SalesOrder(orderId, date, status, userOpt.get(), carOpt.get());
-                    return Optional.of(order);
-                }
-            }
-        } catch (SQLException e) {
-            CRUDRepository.getSQLError(e);
-        }
-        return Optional.empty();
-    }
+        return new SalesOrder(id, date.toLocalDate(), status, customer, car);
+    };
 
     private Optional<User> getUserById(int id) {
         return userRepository.findById(id);
@@ -144,52 +52,73 @@ public class OrderRepositoryImpl implements OrderRepository {
         return carRepository.findById(id);
     }
 
-    /**
-     * Retrieves all sales orders from the repository.
-     *
-     * @return a list of all sales orders
-     */
     @Override
-    public List<SalesOrder> findAll() {
-        String sql = "SELECT id, customer_id, car_id, date, status FROM car_service.sales_order";
-        List<SalesOrder> salesOrders = new ArrayList<>();
+    public Optional<SalesOrder> create(SalesOrder order) {
+        var sql = "INSERT INTO car_service.sales_order (customer_id, car_id, date, status) VALUES (?, ?, ?, ?)";
 
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+        var keyHolder = new GeneratedKeyHolder();
 
-            while (resultSet.next()) {
-                var orderId = resultSet.getInt("id");
-                var customerId = resultSet.getInt("customer_id");
-                var carId = resultSet.getInt("car_id");
-                var date = resultSet.getDate("date").toLocalDate();
-                var statusStr = resultSet.getString("status");
-                OrderStatus status = OrderStatus.valueOf(statusStr);
+        var rowsAffected = jdbcTemplate.update(connection -> {
+            var ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, order.getCustomer().getId());
+            ps.setInt(2, order.getCar().getId());
+            ps.setDate(3, Date.valueOf(order.getDate()));
+            ps.setString(4, order.getStatus().name());
+            return ps;
+        }, keyHolder);
 
-                var userOpt = getUserById(customerId);
-                if (userOpt.isEmpty()) continue;
-
-                var carOpt = getCarById(carId);
-                if (carOpt.isEmpty()) continue;
-
-                var order = new SalesOrder(orderId, date, status, userOpt.get(), carOpt.get());
-                salesOrders.add(order);
+        if (rowsAffected > 0) {
+            var generatedId = keyHolder.getKey();
+            if (generatedId != null) {
+                order.setId(generatedId.intValue());
+                return Optional.of(order);
             }
-        } catch (SQLException e) {
-            CRUDRepository.getSQLError(e);
         }
-
-        return salesOrders;
+        return Optional.empty();
     }
 
-    /**
-     * Finds sales orders in the repository that match the given filter.
-     *
-     * @param predicate the filter to apply to the sales orders
-     * @return a stream of sales orders that match the filter
-     */
+    @Override
+    public int delete(SalesOrder order) {
+        var sql = "DELETE FROM car_service.sales_order WHERE id = ?";
+        return jdbcTemplate.update(sql, order.getId());
+    }
+
+    @Override
+    public int update(SalesOrder order) {
+        var sql = "UPDATE car_service.sales_order SET customer_id = ?, car_id = ?, date = ?, status = ? WHERE id = ?";
+        return jdbcTemplate.update(sql,
+                order.getCustomer().getId(),
+                order.getCar().getId(),
+                Date.valueOf(order.getDate()),
+                order.getStatus().name(),
+                order.getId());
+    }
+
+    @Override
+    public boolean existsById(int id) {
+        var sql = "SELECT COUNT(*) FROM car_service.sales_order WHERE id = ?";
+        var count = jdbcTemplate.queryForObject(sql, Integer.class, id);
+        return count != null && count > 0;
+    }
+
+    @Override
+    public Optional<SalesOrder> findById(int id) {
+        var sql = "SELECT id, customer_id, car_id, date, status FROM car_service.sales_order WHERE id = ?";
+        return jdbcTemplate.query(sql, salesOrderRowMapper, id).stream().findFirst();
+    }
+
+    @Override
+    public Stream<SalesOrder> findAll() {
+        var sql = "SELECT id, customer_id, car_id, date, status FROM car_service.sales_order";
+        var orders = jdbcTemplate.query(sql, salesOrderRowMapper);
+        return orders.stream();
+    }
+
     @Override
     public Stream<SalesOrder> findByFilter(Predicate<SalesOrder> predicate) {
-        return findAll().stream().filter(predicate);
+        return findAll().filter(predicate);
     }
+
+
 }
+

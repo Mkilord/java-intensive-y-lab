@@ -5,7 +5,9 @@ import autoservice.adapter.repository.CarRepository;
 import autoservice.adapter.repository.UserRepository;
 import autoservice.adapter.repository.impl.CarRepositoryImpl;
 import autoservice.adapter.repository.impl.OrderRepositoryImpl;
-import autoservice.adapter.repository.impl.UserRepositoryImpl;
+import autoservice.domen.model.*;
+import autoservice.domen.model.enums.OrderStatus;
+import autoservice.domen.model.enums.Role;
 import autoservice.model.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -154,8 +156,7 @@ public class OrderRepositoryImplTest {
 
     @Test
     public void testUpdateOrder() {
-        User customer = new User(Role.CLIENT, "user3", "pass", "" +
-                "test", "test2", "34939483");
+        User customer = new User(Role.CLIENT, "user3", "pass", "test", "test2", "34939483");
 
         boolean userCreated = userRepository.create(customer);
         assertTrue(userCreated, "User should be created");

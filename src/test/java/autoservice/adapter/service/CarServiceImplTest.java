@@ -2,10 +2,9 @@ package autoservice.adapter.service;
 
 import autoservice.adapter.repository.CarRepository;
 import autoservice.adapter.service.impl.CarServiceImpl;
-import autoservice.model.Car;
-import autoservice.model.CarState;
-import autoservice.model.Role;
-import autoservice.model.User;
+import autoservice.domen.model.Car;
+import autoservice.domen.model.enums.Role;
+import autoservice.domen.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -15,7 +14,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static autoservice.model.CarState.*;
+import static autoservice.domen.model.enums.CarState.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -149,7 +148,7 @@ class CarServiceImplTest {
         var car = new Car(FOR_SALE, "Toyota", "Corolla", 2020, 20000);
         var cars = List.of(car);
 
-        var resultCars = CarServiceImpl.filterCarsByString(cars, "Toyota");
+        var resultCars = CarServiceImpl.getByString(cars, "Toyota");
 
         assertEquals(1, resultCars.size(), "There should be 1 car matching the filter");
         assertEquals(car, resultCars.get(0), "Car should match the filter criteria");

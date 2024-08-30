@@ -1,6 +1,6 @@
 package autoservice.adapter.service.impl;
 
-import autoservice.model.AuditAction;
+import autoservice.domen.model.AuditAction;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

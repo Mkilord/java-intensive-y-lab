@@ -1,7 +1,7 @@
 package autoservice.adapter.service;
 
 import autoservice.adapter.service.impl.AuditService;
-import autoservice.model.AuditAction;
+import autoservice.domen.model.AuditAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
