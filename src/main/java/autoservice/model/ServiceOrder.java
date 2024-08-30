@@ -8,6 +8,9 @@ public class ServiceOrder extends Order {
         super(id, date, status, customer, car);
     }
 
+    public ServiceOrder() {
+    }
+
     public ServiceOrder(LocalDate date, OrderStatus status, User customer, Car car) {
         super(date, status, customer, car);
     }

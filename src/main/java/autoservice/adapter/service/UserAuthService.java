@@ -19,7 +19,9 @@ public interface UserAuthService {
      * @param password the password of the user
      * @return an {@code Optional} containing the registered user if successful, or {@code empty} if the username is already taken
      */
+    @Deprecated
     Optional<User> register(Role role, String username, String password);
+    Optional<User> register(User user);
 
     /**
      * Authenticates a user with the specified username and password.

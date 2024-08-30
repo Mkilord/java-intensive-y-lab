@@ -3,6 +3,7 @@ package autoservice.model;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 
@@ -11,13 +12,12 @@ import java.time.LocalDate;
 import static autoservice.model.OrderStatus.IN_PROGRESS;
 
 @Data
-@FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PROTECTED)
 @AllArgsConstructor()
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public abstract class Order implements View {
-    @NonFinal
     int id;
     LocalDate date;
-    @NonFinal
     OrderStatus status;
     User customer;
     Car car;
