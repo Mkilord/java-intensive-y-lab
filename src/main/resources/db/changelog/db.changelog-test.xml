@@ -7,6 +7,6 @@
         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <include file="db/changelog/v-1/000-create-tables.xml"/>
-    <include file="db/changelog/v-1/100-initial-data.xml"/>
+<!--    <include file="db/changelog/v-1/100-initial-data.xml"/>-->
 
 </databaseChangeLog>

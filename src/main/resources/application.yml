@@ -1,3 +1,7 @@
+server:
+  port: 8080
+  error:
+    include-message: always
 spring:
   application:
     name: car-service-security
@@ -8,7 +12,13 @@ spring:
     password: mypassword
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
 token:
   expirationDays: 365
   signing:
     key: 53A73E5F1C4E0A2D3B5F2D784E6A1B423D6F247D1F6E5C3A596D635A75327855
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

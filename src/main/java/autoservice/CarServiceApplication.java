@@ -1,18 +1,13 @@
 package autoservice;
 
-import autoservice.config.DatabaseConfig;
-import autoservice.config.SecurityConfiguration;
-import autoservice.config.WebConfig;
-import autoservice.config.YamlConfig;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import ru.mkilord.app.EnableAuditLogging;
 
+@SpringBootApplication(scanBasePackages = {"ru.mkilord","autoservice"})
+@EnableAuditLogging
 public class CarServiceApplication {
     public static void main(String[] args) {
-        new AnnotationConfigApplicationContext(
-                SecurityConfiguration.class,
-                YamlConfig.class,
-                WebConfig.class,
-                DatabaseConfig.class
-        );
+        SpringApplication.run(CarServiceApplication.class, args);
     }
 }
