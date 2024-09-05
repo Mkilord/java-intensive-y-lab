@@ -66,12 +66,15 @@ public class OrderRepositoryImpl implements OrderRepository {
             ps.setString(4, order.getStatus().name());
             return ps;
         }, keyHolder);
-
         if (rowsAffected > 0) {
-            var generatedId = keyHolder.getKey();
-            if (generatedId != null) {
-                order.setId(generatedId.intValue());
-                return Optional.of(order);
+            var keyList = keyHolder.getKeyList();
+            if (!keyList.isEmpty()) {
+                var firstKey = keyList.get(0);
+                Integer id = (Integer) firstKey.get("id");
+                if (id != null) {
+                    order.setId(id);
+                    return Optional.of(order);
+                }
             }
         }
         return Optional.empty();

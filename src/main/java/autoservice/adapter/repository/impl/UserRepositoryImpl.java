@@ -54,10 +54,14 @@ public class UserRepositoryImpl implements UserRepository {
                 ps.setString(7, user.getEmail());
                 return ps;
             }, keyHolder);
-
-            var generatedId = keyHolder.getKey();
-            if (generatedId != null) {
-                user.setId(generatedId.intValue());
+            var keyList = keyHolder.getKeyList();
+            if (!keyList.isEmpty()) {
+                var firstKey = keyList.get(0);
+                Integer id = (Integer) firstKey.get("id");
+                if (id != null) {
+                    user.setId(id);
+                    return Optional.of(user);
+                }
             }
             return Optional.of(user);
         }

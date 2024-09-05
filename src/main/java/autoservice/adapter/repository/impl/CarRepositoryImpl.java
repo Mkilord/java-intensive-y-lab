@@ -48,10 +48,14 @@ public class CarRepositoryImpl implements CarRepository {
             return ps;
         }, keyHolder);
 
-        var generatedId = keyHolder.getKey();
-        if (generatedId != null) {
-            car.setId(generatedId.intValue());
-            return Optional.of(car);
+        var keyList = keyHolder.getKeyList();
+        if (!keyList.isEmpty()) {
+            var firstKey = keyList.get(0);
+            Integer id = (Integer) firstKey.get("id");
+            if (id != null) {
+                car.setId(id);
+                return Optional.of(car);
+            }
         }
         return Optional.empty();
     }

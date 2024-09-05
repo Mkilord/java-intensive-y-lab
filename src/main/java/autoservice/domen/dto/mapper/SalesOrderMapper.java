@@ -16,7 +16,8 @@ public interface SalesOrderMapper {
 
     @Mappings({
             @Mapping(source = "customerId", target = "customer.id"),
-            @Mapping(source = "carId", target = "car.id")
+            @Mapping(source = "carId", target = "car.id"),
+            @Mapping(target = "id", ignore = true)
     })
     SalesOrder toEntity(SalesOrderRequest request);
 

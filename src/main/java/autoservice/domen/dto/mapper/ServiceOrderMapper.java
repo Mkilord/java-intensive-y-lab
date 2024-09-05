@@ -17,6 +17,7 @@ public interface ServiceOrderMapper {
 
     @Mapping(source = "customerId", target = "customer.id")
     @Mapping(source = "carId", target = "car.id")
+    @Mapping(target = "id", ignore = true)
     ServiceOrder toEntity(ServiceOrderRequest request);
 
     @Mapping(source = "customer.id", target = "customerId")
